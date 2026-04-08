@@ -69,7 +69,7 @@ export default function Register() {
 
         try {
             await apiService.register(dataToSend);
-            alert("Inscription réussie ! Veuillez attendre qu'un administrateur valide votre compte.");
+            alert("Inscription à Optistage réussie ! Veuillez attendre qu'un administrateur valide votre compte.");
             navigate('/login');
         } catch (err) {
             // Affiche le message d'erreur précis (ex: rôle inexistant)
