@@ -140,7 +140,7 @@ export default function Register() {
                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-600 outline-none transition" />
                     </div>
 
-                    <input type="email" name="email" placeholder="Email (ex: tony@stark.com)" onChange={handleChange} required
+                    <input type="email" name="email" placeholder="Email" onChange={handleChange} required
                            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-600 outline-none transition" />
 
                     <div>

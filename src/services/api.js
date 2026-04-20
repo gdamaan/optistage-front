@@ -6,8 +6,15 @@ export const apiService = {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' }
         });
-        if (!response.ok) throw new Error("Identifiants incorrects");
-        return await response.text();
+
+        if (!response.ok) {
+            // Si le serveur renvoie une erreur (401, 403, etc.), on récupère le message d'erreur textuel
+            const errorMsg = await response.text();
+            throw new Error(errorMsg || "Identifiants incorrects");
+        }
+
+        // SUCCÈS : On retourne le JSON (UserDto) envoyé par le UserController corrigé
+        return await response.json();
     },
 
     /**
