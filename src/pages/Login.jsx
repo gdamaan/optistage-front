@@ -15,23 +15,37 @@ export default function Login({ onLoginSuccess }) {
         setIsLoading(true);
 
         try {
-            // Appel au service corrigé qui renvoie désormais le JSON du UserDto
             const userData = await apiService.login(email, password);
 
-            // Vérification du protocole d'activation
             if (userData.isActive === false) {
-                setError("Accès suspendu : Votre compte est en attente de validation par un administrateur.");
+                setError("Accès suspendu : Votre compte est en attente de validation.");
                 setIsLoading(false);
                 return;
             }
 
-            // Transmission des données (nom, rôle, etc.) à l'état global de l'application
+            // --- PROTOCOLE DE PERSISTANCE ---
+            // On stocke l'objet utilisateur dans le navigateur pour ne pas le perdre au rafraîchissement
+            localStorage.setItem('user', JSON.stringify(userData));
+
             if (onLoginSuccess) {
                 onLoginSuccess(userData);
             }
 
-            // Redirection vers l'interface principale
-            navigate('/home');
+            // --- REDIRECTION INTELLIGENTE SELON LE RÔLE ---
+            // On vérifie le rôle retourné par votre UserDto (Java)
+            switch(userData.role) {
+                case 'STUDENT':
+                    navigate('/offers');
+                    break;
+                case 'TEACHER':
+                    navigate('/teacher-dashboard');
+                    break;
+                case 'TUTOR':
+                    navigate('/tutor-dashboard');
+                    break;
+                default:
+                    navigate('/home');
+            }
 
         } catch (err) {
             setError(err.message);
@@ -60,7 +74,7 @@ export default function Login({ onLoginSuccess }) {
                         placeholder="Adresse email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-600 outline-none transition"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-600 outline-none transition text-black"
                         required
                     />
 
@@ -69,15 +83,14 @@ export default function Login({ onLoginSuccess }) {
                         placeholder="Mot de passe"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-600 outline-none transition"
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-600 outline-none transition text-black"
                         required
                     />
 
                     <button
                         type="submit"
                         disabled={isLoading}
-                        style={{ backgroundColor: '#2563eb' }}
-                        className={`w-full text-white font-bold py-3.5 rounded-xl shadow-lg transition-all mt-4 ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:brightness-110 active:scale-95'}`}
+                        className={`w-full text-white font-bold py-3.5 rounded-xl shadow-lg transition-all mt-4 ${isLoading ? 'bg-blue-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700 active:scale-95'}`}
                     >
                         {isLoading ? "Vérification..." : "Se connecter"}
                     </button>
@@ -86,9 +99,6 @@ export default function Login({ onLoginSuccess }) {
                 <div className="text-center mt-6 space-y-2">
                     <p className="text-xs text-gray-400">
                         Nouveau sur la plateforme ? <Link to="/register" className="text-blue-600 font-bold hover:underline">Créer un compte</Link>
-                    </p>
-                    <p className="text-[10px] text-gray-300 italic">
-                        La question secrète ne sera sollicitée qu'en cas de réinitialisation sécurisée.
                     </p>
                 </div>
             </div>
