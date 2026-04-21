@@ -90,5 +90,20 @@ export const apiService = {
         });
         if (!response.ok) throw new Error("Échec de la mise à jour de l'entreprise.");
         return await response.json();
-    }
+    },
+
+    // Dans apiService (api.js)
+    createEnterprise: async (enterpriseData) => {
+        const response = await fetch(`${API_BASE_URL}/enterprises/create`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(enterpriseData)
+        });
+        if (!response.ok) {
+            const errorMsg = await response.text();
+            throw new Error(errorMsg || "Échec de la création de l'entreprise.");
+        }
+        return await response.json();
+    },
 };

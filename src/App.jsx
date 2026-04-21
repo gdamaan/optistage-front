@@ -10,14 +10,20 @@ import Profile from "./pages/Profile.jsx";
 
 function App() {
     const [user, setUser] = useState(null);
+    const [isInitialLoad, setIsInitialLoad] = useState(true);
 
-    // Au chargement, on vérifie si une session existe déjà
     useEffect(() => {
         const savedUser = localStorage.getItem('user');
         if (savedUser) {
             setUser(JSON.parse(savedUser));
         }
+        setIsInitialLoad(false); // Chargement terminé
     }, []);
+
+    // Empêche le rendu des routes tant que le localStorage n'est pas lu
+    if (isInitialLoad) {
+        return <div className="flex items-center justify-center min-h-screen">Initialisation...</div>;
+    }
 
     const handleLogout = () => {
         localStorage.removeItem('user');
