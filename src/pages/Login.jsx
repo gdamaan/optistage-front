@@ -34,17 +34,17 @@ export default function Login({ onLoginSuccess }) {
             // --- REDIRECTION INTELLIGENTE SELON LE RÔLE ---
             // On vérifie le rôle retourné par votre UserDto (Java)
             switch(userData.role) {
-                case 'STUDENT':
+                case 'Étudiant':
                     navigate('/offers');
                     break;
-                case 'TEACHER':
+                case 'Professeur':
                     navigate('/teacher-dashboard');
                     break;
-                case 'TUTOR':
+                case 'Entreprise':
                     navigate('/tutor-dashboard');
                     break;
                 default:
-                    navigate('/home');
+                    navigate('/');
             }
 
         } catch (err) {

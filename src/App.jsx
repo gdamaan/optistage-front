@@ -1,32 +1,50 @@
+import { useState, useEffect } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Header from './components/Header';
-import Footer from './components/Footer'; // Importation du nouveau module
+import Footer from './components/Footer';
 import Home from './pages/Home';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import './App.css';
+import Profile from "./pages/Profile.jsx";
 
 function App() {
+    const [user, setUser] = useState(null);
+
+    // Au chargement, on vérifie si une session existe déjà
+    useEffect(() => {
+        const savedUser = localStorage.getItem('user');
+        if (savedUser) {
+            setUser(JSON.parse(savedUser));
+        }
+    }, []);
+
+    const handleLogout = () => {
+        localStorage.removeItem('user');
+        setUser(null);
+        window.location.href = '/login'; // Redirection propre
+    };
+
     return (
         <Router>
-            {/* min-h-screen : occupe toute la hauteur de l'écran
-                flex-col : aligne les éléments verticalement
-            */}
             <div className="App min-h-screen flex flex-col bg-gray-50">
+                {/* On passe l'utilisateur et la fonction de déconnexion au Header */}
+                <Header user={user} onLogout={handleLogout} />
 
-                {/* Le Header reste toujours affiché en haut */}
-                <Header />
-
-                {/* flex-grow : permet au contenu principal de pousser le footer vers le bas
-                */}
                 <main className="flex-grow">
                     <Routes>
                         <Route path="/" element={<Home />} />
-                        <Route path="/login" element={<Login />} />
+                        {/* On passe setUser à Login pour mettre à jour le Header immédiatement après connexion */}
+                        <Route path="/login" element={<Login onLoginSuccess={setUser} />} />
                         <Route path="/register" element={<Register />} />
+
+                        {/* Les futures routes protégées viendront ici */}
+                        <Route path="/offers" element={<div>Page des Offres</div>} />
+                        <Route path="/teacher-dashboard" element={<div>Dashboard Professeur</div>} />
+                        <Route path="/tutor-dashboard" element={<div>Dashboard Tuteur</div>} />
+                        <Route path="/profile" element={<Profile user={user} onUpdateUser={setUser} />} />
                     </Routes>
                 </main>
-
 
                 <Footer />
             </div>

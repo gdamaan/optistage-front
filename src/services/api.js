@@ -59,4 +59,36 @@ export const apiService = {
         if (!response.ok) throw new Error("Impossible de récupérer les rôles.");
         return await response.json();
     },
+
+    // Ajoutez ceci dans l'objet apiService de votre fichier api.js
+    updateProfile: async (userData) => {
+        const response = await fetch(`${API_BASE_URL}/users/update`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(userData)
+        });
+        if (!response.ok) throw new Error("Échec de la mise à jour du profil.");
+        return await response.text();
+    },
+
+    getEnterpriseByManager: async (managerId) => {
+        const response = await fetch(`${API_BASE_URL}/enterprises/manager/${managerId}`, {
+            credentials: 'include'
+        });
+        if (response.status === 404) return null; // Pas encore d'entreprise liée
+        if (!response.ok) throw new Error("Erreur lors de la récupération de l'entreprise.");
+        return await response.json();
+    },
+
+    updateEnterprise: async (enterpriseData) => {
+        const response = await fetch(`${API_BASE_URL}/enterprises/update`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(enterpriseData)
+        });
+        if (!response.ok) throw new Error("Échec de la mise à jour de l'entreprise.");
+        return await response.json();
+    }
 };
