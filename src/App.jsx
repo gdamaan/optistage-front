@@ -7,6 +7,8 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import './App.css';
 import Profile from "./pages/Profile.jsx";
+import Offers from "./pages/Offres.jsx";
+import TutorDashboard from "./pages/TutorDashboard.jsx";
 
 function App() {
     const [user, setUser] = useState(null);
@@ -43,11 +45,9 @@ function App() {
                         {/* On passe setUser à Login pour mettre à jour le Header immédiatement après connexion */}
                         <Route path="/login" element={<Login onLoginSuccess={setUser} />} />
                         <Route path="/register" element={<Register />} />
-
-                        {/* Les futures routes protégées viendront ici */}
-                        <Route path="/offers" element={<div>Page des Offres</div>} />
+                        <Route path="/offers" element={<Offers />} />
                         <Route path="/teacher-dashboard" element={<div>Dashboard Professeur</div>} />
-                        <Route path="/tutor-dashboard" element={<div>Dashboard Tuteur</div>} />
+                        <Route path="/tutor-dashboard" element={<TutorDashboard user={user} />} />
                         <Route path="/profile" element={<Profile user={user} onUpdateUser={setUser} />} />
                     </Routes>
                 </main>

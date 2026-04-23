@@ -106,4 +106,45 @@ export const apiService = {
         }
         return await response.json();
     },
+
+    // Ajoutez ces deux fonctions dans l'objet apiService de votre fichier src/services/api.js
+
+    getAllOffers: async () => {
+        const response = await fetch(`${API_BASE_URL}/offers/all`, {
+            credentials: 'include'
+        });
+        if (!response.ok) throw new Error("Impossible de récupérer les offres de stage.");
+        return await response.json();
+    },
+
+    searchOffers: async (title) => {
+        // Encodage du titre pour éviter les erreurs avec les espaces ou caractères spéciaux dans l'URL
+        const response = await fetch(`${API_BASE_URL}/offers/search?title=${encodeURIComponent(title)}`, {
+            credentials: 'include'
+        });
+        if (!response.ok) throw new Error("Erreur lors de la recherche des offres.");
+        return await response.json();
+    },
+
+    getOffersByEnterprise: async (enterpriseId) => {
+        const response = await fetch(`${API_BASE_URL}/offers/enterprise/${enterpriseId}`, {
+            credentials: 'include'
+        });
+        if (!response.ok) throw new Error("Erreur lors de la récupération de vos offres.");
+        return await response.json();
+    },
+
+    createOffer: async (offerData) => {
+        const response = await fetch(`${API_BASE_URL}/offers/create`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(offerData)
+        });
+        if (!response.ok) {
+            const errorMsg = await response.text();
+            throw new Error(errorMsg || "Échec de la création de l'offre.");
+        }
+        return await response.json();
+    },
 };
