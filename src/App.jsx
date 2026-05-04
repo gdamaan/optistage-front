@@ -9,6 +9,7 @@ import './App.css';
 import Profile from "./pages/Profile.jsx";
 import Offers from "./pages/Offres.jsx";
 import TutorDashboard from "./pages/TutorDashboard.jsx";
+import StudentDashboard from "./pages/StudentDashboard.jsx";
 
 function App() {
     const [user, setUser] = useState(null);
@@ -46,6 +47,7 @@ function App() {
                         <Route path="/login" element={<Login onLoginSuccess={setUser} />} />
                         <Route path="/register" element={<Register />} />
                         <Route path="/offers" element={<Offers />} />
+                        <Route path="/student-dashboard" element={<StudentDashboard />} />
                         <Route path="/teacher-dashboard" element={<div>Dashboard Professeur</div>} />
                         <Route path="/tutor-dashboard" element={<TutorDashboard user={user} />} />
                         <Route path="/profile" element={<Profile user={user} onUpdateUser={setUser} />} />

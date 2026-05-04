@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import { useSearchParams, useNavigate } from 'react-router-dom';
 import { apiService } from '../services/api';
 
 export default function Offers() {
@@ -7,8 +7,16 @@ export default function Offers() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
     const [searchParams] = useSearchParams();
+    const navigate = useNavigate();
 
-    // On récupère le paramètre 'title' de l'URL s'il existe
+    // Récupération de l'utilisateur actif depuis la mémoire de session
+    const currentUser = JSON.parse(sessionStorage.getItem('user'));
+
+    // États pour la modale de candidature
+    const [selectedOffer, setSelectedOffer] = useState(null);
+    const [motivationLetter, setMotivationLetter] = useState('');
+    const [applyStatus, setApplyStatus] = useState({ loading: false, message: '', type: '' });
+
     const titleQuery = searchParams.get('title') || '';
 
     useEffect(() => {
@@ -17,10 +25,8 @@ export default function Offers() {
                 setLoading(true);
                 let data;
                 if (titleQuery) {
-                    // Si un titre est présent dans l'URL, on lance la recherche
                     data = await apiService.searchOffers(titleQuery);
                 } else {
-                    // Sinon, on affiche tout le catalogue
                     data = await apiService.getAllOffers();
                 }
                 setOffers(data);
@@ -30,12 +36,47 @@ export default function Offers() {
                 setLoading(false);
             }
         };
-
         fetchOffers();
-    }, [titleQuery]); // Se déclenche à chaque fois que l'URL change
+    }, [titleQuery]);
+
+    const handleApply = async (e) => {
+        e.preventDefault();
+
+        if (!currentUser) {
+            navigate('/login');
+            return;
+        }
+
+        if (currentUser.role !== 'Étudiant') {
+            setApplyStatus({ loading: false, type: 'error', message: 'Seuls les étudiants peuvent postuler.' });
+            return;
+        }
+
+        setApplyStatus({ loading: true, message: '', type: '' });
+
+        // On utilise exactement les noms de variables listés par votre erreur Java
+        const applicationData = {
+            studentId: currentUser.id,
+            offerId: selectedOffer.id,
+            motivationLetter: motivationLetter,
+            status: "EN_ATTENTE"
+        };
+
+        try {
+            await apiService.applyToOffer(applicationData);
+            setApplyStatus({ loading: false, type: 'success', message: 'Candidature transmise avec succès !' });
+            setTimeout(() => {
+                setSelectedOffer(null);
+                setMotivationLetter('');
+                setApplyStatus({ loading: false, message: '', type: '' });
+            }, 2000);
+        } catch (err) {
+            setApplyStatus({ loading: false, type: 'error', message: err.message });
+        }
+    };
 
     return (
-        <div className="max-w-7xl mx-auto p-6 space-y-6">
+        <div className="max-w-7xl mx-auto p-6 space-y-6 relative">
             <header className="flex justify-between items-end border-b pb-6">
                 <div>
                     <h1 className="text-3xl font-black text-blue-900 tracking-tight">
@@ -63,10 +104,10 @@ export default function Offers() {
                         <div key={offer.id} className="bg-white p-6 rounded-3xl shadow-lg border border-gray-100 hover:shadow-xl transition-all group flex flex-col">
                             <div className="flex justify-between items-start mb-4">
                                 <span className="bg-blue-600 text-white text-[10px] font-black px-2 py-1 rounded uppercase">
-                                    {offer.enterpriseName}
+                                    {offer.enterprise?.name || 'Entreprise'}
                                 </span>
                                 <span className="text-gray-400 text-xs flex items-center gap-1">
-                                    <i className="fa-solid fa-location-dot"></i> {offer.location}
+                                    <i className="fa-solid fa-location-dot"></i> {offer.ville}
                                 </span>
                             </div>
 
@@ -80,14 +121,87 @@ export default function Offers() {
 
                             <div className="pt-4 border-t border-gray-50 flex justify-between items-center">
                                 <div className="text-green-600 font-bold text-sm">
-                                    {offer.salary ? `${offer.salary}€ / mois` : 'Gratification à négocier'}
+                                    {offer.remuneration ? `${offer.remuneration}€ / mois` : 'Non spécifié'}
                                 </div>
-                                <button className="bg-gray-900 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-blue-600 transition-colors">
-                                    Voir plus
+                                <button
+                                    onClick={() => setSelectedOffer(offer)}
+                                    className="bg-gray-900 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-blue-600 transition-colors"
+                                >
+                                    Postuler
                                 </button>
                             </div>
                         </div>
                     ))}
+                </div>
+            )}
+
+            {/* MODALE DE CANDIDATURE (S'affiche uniquement si selectedOffer n'est pas null) */}
+            {selectedOffer && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-200">
+                    <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
+
+                        {/* En-tête de la modale */}
+                        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-blue-50/50">
+                            <div>
+                                <h2 className="text-xl font-bold text-blue-900">{selectedOffer.title}</h2>
+                                <p className="text-sm text-gray-500 font-medium">{selectedOffer.enterprise?.name} • {selectedOffer.ville}</p>
+                            </div>
+                            <button onClick={() => setSelectedOffer(null)} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 hover:bg-red-500 hover:text-white transition-colors">
+                                <i className="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+
+                        {/* Corps de la modale avec défilement */}
+                        <div className="p-6 overflow-y-auto">
+                            <div className="mb-6">
+                                <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">Missions</h3>
+                                <p className="text-sm text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                    {selectedOffer.description}
+                                </p>
+                            </div>
+
+                            <form onSubmit={handleApply} className="space-y-4">
+                                <div>
+                                    <h3 className="text-xs font-black text-blue-600 uppercase tracking-wider mb-2">
+                                        <i className="fa-solid fa-pen-nib mr-1"></i> Votre Lettre de Motivation
+                                    </h3>
+                                    <textarea
+                                        required
+                                        rows="8"
+                                        value={motivationLetter}
+                                        onChange={(e) => setMotivationLetter(e.target.value)}
+                                        placeholder="Monsieur, Madame, Actuellement étudiant en..."
+                                        className="w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all text-sm resize-none shadow-inner bg-gray-50"
+                                    ></textarea>
+                                </div>
+
+                                {applyStatus.message && (
+                                    <div className={`p-3 rounded-xl text-sm font-bold text-center ${applyStatus.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                        {applyStatus.message}
+                                    </div>
+                                )}
+
+                                <div className="flex justify-end gap-3 pt-4 border-t border-gray-50">
+                                    <button
+                                        type="button"
+                                        onClick={() => setSelectedOffer(null)}
+                                        className="px-6 py-2.5 rounded-xl font-bold text-gray-600 hover:bg-gray-100 transition-colors"
+                                    >
+                                        Annuler
+                                    </button>
+                                    <button
+                                        type="submit"
+                                        disabled={applyStatus.loading}
+                                        className="bg-blue-600 text-white px-8 py-2.5 rounded-xl font-bold shadow-lg hover:bg-blue-700 hover:shadow-xl transition-all disabled:opacity-50 flex items-center gap-2"
+                                    >
+                                        {applyStatus.loading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-paper-plane"></i>}
+                                        {applyStatus.loading ? 'Envoi...' : 'Transmettre le dossier'}
+                                    </button>
+                                </div>
+                            </form>
+                        </div>
+
+                    </div>
                 </div>
             )}
         </div>

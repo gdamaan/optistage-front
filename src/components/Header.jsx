@@ -53,7 +53,7 @@ export default function Header({ user, onLogout }) {
 
                         {/* Modules Étudiant */}
                         {user?.role === 'Étudiant' && (
-                            <Link to="/student-space" className="text-blue-700 hover:text-blue-900 font-bold transition text-sm">
+                            <Link to="/student-dashboard" className="text-blue-700 hover:text-blue-900 font-bold transition text-sm">
                                 Mon Espace
                             </Link>
                         )}

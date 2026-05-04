@@ -52,6 +52,17 @@ export const apiService = {
         return await response.json();
     },
 
+    getStudentApplications: async (studentId) => {
+        // On cible directement votre route optimisée
+        const response = await fetch(`${API_BASE_URL}/applications/student/${studentId}`, {
+            credentials: 'include'
+        });
+
+        if (!response.ok) throw new Error("Impossible de récupérer les candidatures.");
+        // Plus besoin de filtrer côté React, votre backend fait déjà le travail !
+        return await response.json();
+    },
+
     getRoles: async () => {
         const response = await fetch(`${API_BASE_URL}/roles/all`, {
             credentials: 'include'
@@ -107,7 +118,21 @@ export const apiService = {
         return await response.json();
     },
 
-    // Ajoutez ces deux fonctions dans l'objet apiService de votre fichier src/services/api.js
+
+    applyToOffer: async (applicationData) => {
+        const response = await fetch(`${API_BASE_URL}/applications/create`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(applicationData)
+        });
+        if (!response.ok) {
+            const errorMsg = await response.text();
+            throw new Error(errorMsg || "Échec de l'envoi de la candidature.");
+        }
+        return await response.json();
+    },
+
 
     getAllOffers: async () => {
         const response = await fetch(`${API_BASE_URL}/offers/all`, {
