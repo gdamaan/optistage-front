@@ -16,8 +16,15 @@ export default function Register() {
         birthdate: '',
         response: '',
         question: { id: "" },
-        role: { name: "" },   // Requis par UserService.subscribe()
-        isActive: false      // Par défaut à false
+        role: { name: "" },
+        isActive: false
+    });
+
+    // --- NOUVEAU : État dédié aux données de l'entreprise ---
+    const [enterpriseData, setEnterpriseData] = useState({
+        name: '',
+        siret: '',
+        sector: ''
     });
 
     useEffect(() => {
@@ -36,28 +43,21 @@ export default function Register() {
         loadInitialData();
     }, []);
 
-    /**
-     * Protocoles de validation Front-end
-     * Vérifie l'Email, le Mot de passe et l'Âge
-     */
     const validateForm = () => {
-        const { email, password, birthdate } = formData;
+        const { email, password, birthdate, role } = formData;
 
-        // 1. Validation Email
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
         if (!emailRegex.test(email)) {
             setError("L'adresse email n'est pas conforme aux standards.");
             return false;
         }
 
-        // 2. Validation Mot de passe (Min 8 car., 1 Maj, 1 min, 1 Chiffre)
         const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).{8,}$/;
         if (!passwordRegex.test(password)) {
-            setError("Le mot de passe manque de complexité : 8 caractères, une majuscule et un chiffre minimum.");
+            setError("Le mot de passe manque de complexité : 8 caractères, 1 Maj, 1 min, 1 Chiffre.");
             return false;
         }
 
-        // 3. Validation de l'Âge (Majorité requise)
         const birth = new Date(birthdate);
         const today = new Date();
         let age = today.getFullYear() - birth.getFullYear();
@@ -69,6 +69,18 @@ export default function Register() {
         if (age < 18) {
             setError("Accès refusé. Vous devez être majeur pour utiliser OptiStage.");
             return false;
+        }
+
+        // --- NOUVEAU : Validation spécifique si le rôle est "Entreprise" ---
+        if (role.name === 'Entreprise') {
+            if (!enterpriseData.name || !enterpriseData.siret) {
+                setError("Les informations de l'entreprise (Nom et SIRET) sont obligatoires.");
+                return false;
+            }
+            if (enterpriseData.siret.length !== 14) {
+                setError("Le numéro SIRET doit comporter exactement 14 chiffres.");
+                return false;
+            }
         }
 
         return true;
@@ -89,13 +101,18 @@ export default function Register() {
         }
     };
 
+    // --- NOUVEAU : Gestionnaire pour les champs de l'entreprise ---
+    const handleEnterpriseChange = (e) => {
+        const { name, value } = e.target;
+        setEnterpriseData({ ...enterpriseData, [name]: value });
+    };
+
     const handleSubmit = async (e) => {
         e.preventDefault();
         setError('');
 
         if (!validateForm()) return;
 
-        // Conversion Date yyyy-mm-dd -> dd/MM/yyyy pour Jackson
         let formattedBirthdate = formData.birthdate;
         if (formData.birthdate.includes('-')) {
             const [year, month, day] = formData.birthdate.split('-');
@@ -107,9 +124,14 @@ export default function Register() {
             birthdate: formattedBirthdate
         };
 
+        // --- NOUVEAU : Injection des données entreprise dans le flux principal ---
+        if (formData.role.name === 'Entreprise') {
+            dataToSend.enterprise = enterpriseData;
+        }
+
         try {
             await apiService.register(dataToSend);
-            alert(" Inscription réussie ! Veuillez attendre la validation d'un administrateur.");
+            alert("Inscription réussie ! Veuillez attendre la validation d'un administrateur.");
             navigate('/login');
         } catch (err) {
             setError(err.message);
@@ -117,14 +139,14 @@ export default function Register() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 py-12">
             <div className="bg-white/90 backdrop-blur-md p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white/10">
                 <div className="text-center mb-6">
                     <h2 className="text-3xl font-bold text-blue-900">OptiStage</h2>
                     <p className="text-gray-500 mt-2 text-sm">Initialisation des protocoles</p>
                 </div>
 
-                {error && <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-xs font-bold text-center border border-red-200">{error}</div>}
+                {error && <div className="bg-red-50 text-red-600 p-3 rounded-lg mb-4 text-xs font-bold text-center border border-red-200 animate-in fade-in">{error}</div>}
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-2 gap-3">
@@ -146,7 +168,6 @@ export default function Register() {
                     <div>
                         <input type="password" name="password" placeholder="Mot de passe" onChange={handleChange} required
                                className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-600 outline-none transition" />
-                        <p className="text-[9px] text-gray-400 mt-1 ml-1">Min. 8 caractères, 1 Majuscule, 1 Chiffre</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
@@ -171,8 +192,24 @@ export default function Register() {
                     <input name="response" placeholder="Réponse à la question secrète" onChange={handleChange} required
                            className="w-full px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-600 transition" />
 
-                    <button type="submit" style={{ backgroundColor: '#2563eb' }}
-                            className="w-full text-white font-bold py-3.5 rounded-xl shadow-lg hover:brightness-110 active:scale-95 transition-all mt-2">
+                    {/* --- NOUVEAU : Bloc dynamique conditionnel pour l'Entreprise --- */}
+                    {formData.role.name === 'Entreprise' && (
+                        <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl space-y-3 animate-in zoom-in-95 duration-200">
+                            <h3 className="text-xs font-bold text-blue-900 uppercase flex items-center gap-2">
+                                <i className="fa-solid fa-building"></i> Informations Société
+                            </h3>
+                            <input name="name" placeholder="Nom de l'entreprise" onChange={handleEnterpriseChange} required
+                                   className="w-full px-4 py-2.5 rounded-xl border border-blue-200 outline-none focus:ring-2 focus:ring-blue-600 transition text-sm" />
+                            <div className="grid grid-cols-2 gap-3">
+                                <input name="siret" placeholder="SIRET (14 chiffres)" maxLength="14" onChange={handleEnterpriseChange} required
+                                       className="w-full px-4 py-2.5 rounded-xl border border-blue-200 outline-none focus:ring-2 focus:ring-blue-600 transition text-sm font-mono" />
+                                <input name="sector" placeholder="Secteur d'activité" onChange={handleEnterpriseChange}
+                                       className="w-full px-4 py-2.5 rounded-xl border border-blue-200 outline-none focus:ring-2 focus:ring-blue-600 transition text-sm" />
+                            </div>
+                        </div>
+                    )}
+
+                    <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:brightness-110 active:scale-95 transition-all mt-2">
                         Démarrer l'inscription
                     </button>
                 </form>

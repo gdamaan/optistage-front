@@ -25,7 +25,7 @@ export default function Login({ onLoginSuccess }) {
 
             // --- PROTOCOLE DE PERSISTANCE ---
             // On stocke l'objet utilisateur dans le navigateur pour ne pas le perdre au rafraîchissement
-            localStorage.setItem('user', JSON.stringify(userData));
+            sessionStorage.setItem('user', JSON.stringify(userData));
 
             if (onLoginSuccess) {
                 onLoginSuccess(userData);

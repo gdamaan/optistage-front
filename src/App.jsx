@@ -15,7 +15,7 @@ function App() {
     const [isInitialLoad, setIsInitialLoad] = useState(true);
 
     useEffect(() => {
-        const savedUser = localStorage.getItem('user');
+        const savedUser = sessionStorage.getItem('user');;
         if (savedUser) {
             setUser(JSON.parse(savedUser));
         }
@@ -28,7 +28,7 @@ function App() {
     }
 
     const handleLogout = () => {
-        localStorage.removeItem('user');
+        sessionStorage.removeItem('user');
         setUser(null);
         window.location.href = '/login'; // Redirection propre
     };

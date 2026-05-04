@@ -61,7 +61,7 @@ export default function Profile({ user, onUpdateUser }) {
         try {
             await apiService.updateProfile(formData);
             const updatedUser = { ...user, ...formData };
-            localStorage.setItem('user', JSON.stringify(updatedUser));
+            sessionStorage.setItem('user', JSON.stringify(updatedUser));
             onUpdateUser(updatedUser);
             setMessage({ type: 'success', text: 'Profil mis à jour avec succès !' });
         } catch (err) {
