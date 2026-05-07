@@ -24,7 +24,7 @@ export default function StudentDashboard() {
         };
 
         fetchApplications();
-    }, [currentUser]);
+    }, [currentUser?.id]);
 
     // Fonction utilitaire pour styliser les statuts
     const getStatusStyle = (status) => {
