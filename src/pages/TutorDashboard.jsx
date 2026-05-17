@@ -130,17 +130,33 @@ export default function TutorDashboard({ user }) {
                     </div>
                 ) : (
                     offers.map(off => (
-                        <div key={off.id} className="bg-white p-6 rounded-2xl shadow-md border border-gray-100 flex justify-between items-center group hover:border-blue-200 transition-all">
-                            <div>
-                                <h3 className="font-bold text-lg text-gray-800">{off.title}</h3>
-                                <div className="flex gap-4 text-xs text-gray-500 mt-1">
-                                    <span><i className="fa-solid fa-location-dot"></i> {off.location}</span>
-                                    <span><i className="fa-solid fa-calendar"></i> Début: {new Date(off.startDate).toLocaleDateString()}</span>
+                        <div key={off.id} className="bg-white p-6 rounded-2xl shadow-md border border-gray-100 transition-all flex flex-col gap-4">
+                            <div className="flex justify-between items-start">
+                                <div>
+                                    <h3 className="font-bold text-lg text-gray-800">{off.title}</h3>
+                                    <div className="flex gap-4 text-xs text-gray-500 mt-1">
+                                        <span><i className="fa-solid fa-location-dot"></i> {off.location}</span>
+                                        <span><i className="fa-solid fa-calendar"></i> Début: {new Date(off.startDate).toLocaleDateString()}</span>
+                                    </div>
+                                </div>
+                                <div className="flex gap-2">
+                                    <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"><i className="fa-solid fa-pen"></i></button>
+                                    <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg"><i className="fa-solid fa-trash"></i></button>
                                 </div>
                             </div>
-                            <div className="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"><i className="fa-solid fa-pen"></i></button>
-                                <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg"><i className="fa-solid fa-trash"></i></button>
+
+                            {/* NOUVEAU BLOC : Bouton vers la page d'examen des candidatures */}
+                            <div className="border-t border-gray-100 pt-4 flex justify-between items-center">
+                                <span className="text-sm text-gray-500 font-medium">
+                                    <i className="fa-solid fa-users text-blue-500 mr-2"></i>
+                                    Gestion des postulants
+                                </span>
+                                <Link
+                                    to={`/tutor/offer/${off.id}/applications`}
+                                    className="bg-blue-900 text-white px-4 py-2 rounded-xl text-sm font-bold hover:bg-blue-800 shadow-md transition-all flex items-center gap-2"
+                                >
+                                    Examiner les dossiers <i className="fa-solid fa-arrow-right"></i>
+                                </Link>
                             </div>
                         </div>
                     ))

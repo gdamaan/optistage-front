@@ -53,13 +53,11 @@ export const apiService = {
     },
 
     getStudentApplications: async (studentId) => {
-        // On cible directement votre route optimisée
         const response = await fetch(`${API_BASE_URL}/applications/student/${studentId}`, {
             credentials: 'include'
         });
 
         if (!response.ok) throw new Error("Impossible de récupérer les candidatures.");
-        // Plus besoin de filtrer côté React, votre backend fait déjà le travail !
         return await response.json();
     },
 
@@ -71,7 +69,6 @@ export const apiService = {
         return await response.json();
     },
 
-    // Ajoutez ceci dans l'objet apiService de votre fichier api.js
     updateProfile: async (userData) => {
         const response = await fetch(`${API_BASE_URL}/users/update`, {
             method: 'PUT',
@@ -81,6 +78,28 @@ export const apiService = {
         });
         if (!response.ok) throw new Error("Échec de la mise à jour du profil.");
         return await response.text();
+    },
+// 4. Récupérer les candidatures d'une offre
+    getApplicationsByOffer: async (offerId) => {
+        const response = await fetch(`${API_BASE_URL}/applications/offer/${offerId}`, {
+            credentials: 'include'
+        });
+        if (!response.ok) throw new Error("Impossible de récupérer les candidatures.");
+        return await response.json();
+    },
+
+    // 5. Mise à jour du statut (Adapté pour votre @QueryParam)
+    updateApplicationStatus: async (applicationId, status) => {
+        // Le statut est passé directement dans l'URL avec ?status=
+        const response = await fetch(`${API_BASE_URL}/applications/${applicationId}/status?status=${encodeURIComponent(status)}`, {
+            method: 'PUT',
+            credentials: 'include'
+        });
+        if (!response.ok) {
+            const errorMsg = await response.text();
+            throw new Error(errorMsg || "Échec de la modification du statut.");
+        }
+        return await response.json();
     },
 
     getEnterpriseByManager: async (managerId) => {
