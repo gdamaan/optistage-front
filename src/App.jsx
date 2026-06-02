@@ -10,6 +10,7 @@ import Profile from "./pages/Profile.jsx";
 import Offers from "./pages/Offres.jsx";
 import TutorDashboard from "./pages/TutorDashboard.jsx";
 import StudentDashboard from "./pages/StudentDashboard.jsx";
+import OfferApplications from "./pages/OfferApplications.jsx";
 
 function App() {
     const [user, setUser] = useState(null);
@@ -50,7 +51,9 @@ function App() {
                         <Route path="/student-dashboard" element={<StudentDashboard />} />
                         <Route path="/teacher-dashboard" element={<div>Dashboard Professeur</div>} />
                         <Route path="/tutor-dashboard" element={<TutorDashboard user={user} />} />
+                        <Route path="/tutor/offer/:id/applications" element={<OfferApplications />} />
                         <Route path="/profile" element={<Profile user={user} onUpdateUser={setUser} />} />
+
                     </Routes>
                 </main>
 
