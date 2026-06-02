@@ -8,7 +8,7 @@ export default function OfferApplications() {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState('');
 
-    // NOUVEAU : État pour gérer l'ouverture du dossier (La modale)
+    // État pour gérer l'ouverture du dossier (La modale)
     const [selectedApp, setSelectedApp] = useState(null);
 
     useEffect(() => {
@@ -39,6 +39,22 @@ export default function OfferApplications() {
             fetchApplications();  // On recharge la liste
         } catch (err) {
             alert(`Erreur : ${err.message}`);
+        }
+    };
+
+    // NOUVEAU : Fonction pour récupérer et afficher le CV
+    const handleViewCV = async (cvId) => {
+        if (!cvId) return;
+
+        try {
+            const blob = await apiService.getCV(cvId);
+            // On crée une URL locale pour le fichier PDF (le Blob)
+            const url = window.URL.createObjectURL(new Blob([blob], { type: 'application/pdf' }));
+            // Ouverture dans un nouvel onglet
+            window.open(url, '_blank');
+        } catch (error) {
+            console.error("Erreur lors de la récupération du CV :", error);
+            alert("Impossible de charger le CV pour le moment. L'armure a un léger raté de communication avec la base NoSQL.");
         }
     };
 
@@ -93,7 +109,6 @@ export default function OfferApplications() {
                                 {app.status === 'ACCEPTE' && <span className="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-xs font-bold"><i className="fa-solid fa-check mr-1"></i> Accepté</span>}
                                 {app.status === 'REFUSE' && <span className="bg-red-100 text-red-700 px-3 py-1 rounded-lg text-xs font-bold">Refusé</span>}
 
-                                {/* Le bouton pour ouvrir l'analyseur de dossier */}
                                 <button
                                     onClick={() => setSelectedApp(app)}
                                     className="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-4 py-2 rounded-xl text-sm font-bold transition"
@@ -111,7 +126,6 @@ export default function OfferApplications() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm p-4">
                     <div className="bg-white rounded-3xl shadow-2xl w-full max-w-3xl max-h-[90vh] flex flex-col overflow-hidden animate-fade-in-up">
 
-                        {/* En-tête de la modale */}
                         <div className="bg-gray-50 px-6 py-4 border-b border-gray-100 flex justify-between items-center">
                             <div>
                                 <h2 className="text-xl font-black text-gray-800">Dossier de {selectedApp.studentName}</h2>
@@ -122,28 +136,44 @@ export default function OfferApplications() {
                             </button>
                         </div>
 
-                        {/* Contenu (Lettre de motivation) */}
                         <div className="p-6 overflow-y-auto flex-1">
                             <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">Lettre de motivation</h3>
                             <div className="bg-blue-50/50 p-6 rounded-2xl border border-blue-100 text-gray-700 whitespace-pre-wrap font-serif leading-relaxed">
-                                {/* whitespace-pre-wrap est crucial : il respecte les sauts de ligne tapés par l'étudiant */}
                                 {selectedApp.motivationLetter ? selectedApp.motivationLetter : <span className="italic text-gray-400">Cet étudiant n'a pas laissé de lettre de motivation.</span>}
                             </div>
 
-                            {/* Espace prévu pour le CV plus tard */}
+                            {/* Section CV mise à jour */}
                             <div className="mt-6 border-t border-dashed border-gray-200 pt-6">
                                 <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">Pièces jointes</h3>
-                                <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100 opacity-60">
-                                    <i className="fa-solid fa-file-pdf text-red-500 text-2xl"></i>
-                                    <div>
-                                        <p className="text-sm font-bold text-gray-700">Curriculum Vitae (CV)</p>
-                                        <p className="text-xs text-gray-500">Module de téléchargement en cours de construction...</p>
+
+                                {selectedApp.cvId ? (
+                                    <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-blue-100 shadow-sm">
+                                        <div className="flex items-center gap-3">
+                                            <i className="fa-solid fa-file-pdf text-red-500 text-2xl"></i>
+                                            <div>
+                                                <p className="text-sm font-bold text-gray-700">Curriculum Vitae (CV)</p>
+                                                <p className="text-xs text-gray-500">Document disponible</p>
+                                            </div>
+                                        </div>
+                                        <button
+                                            onClick={() => handleViewCV(selectedApp.cvId)}
+                                            className="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2"
+                                        >
+                                            <i className="fa-solid fa-eye"></i> Consulter le CV
+                                        </button>
                                     </div>
-                                </div>
+                                ) : (
+                                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl border border-gray-100">
+                                        <i className="fa-solid fa-file-circle-xmark text-gray-400 text-2xl"></i>
+                                        <div>
+                                            <p className="text-sm font-bold text-gray-700">Aucun CV joint</p>
+                                            <p className="text-xs text-gray-500">Ce candidat n'a pas fourni de CV avec sa candidature.</p>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </div>
 
-                        {/* Panneau de contrôle (Boutons d'action) */}
                         <div className="bg-gray-50 px-6 py-4 border-t border-gray-100 flex justify-end gap-3">
                             <button
                                 onClick={() => setSelectedApp(null)}
@@ -152,7 +182,6 @@ export default function OfferApplications() {
                                 Fermer
                             </button>
 
-                            {/* On n'affiche les boutons d'action que si l'offre n'est pas pourvue et que le candidat est en attente */}
                             {selectedApp.status === 'EN_ATTENTE' && !isOfferFilled && (
                                 <>
                                     <button

@@ -17,7 +17,7 @@ function App() {
     const [isInitialLoad, setIsInitialLoad] = useState(true);
 
     useEffect(() => {
-        const savedUser = sessionStorage.getItem('user');;
+        const savedUser = sessionStorage.getItem('user');
         if (savedUser) {
             setUser(JSON.parse(savedUser));
         }

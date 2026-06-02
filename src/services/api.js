@@ -1,6 +1,20 @@
 const API_BASE_URL = "http://localhost:9991/ws/rest";
 
+
 export const apiService = {
+    // Fonction utilitaire de Jarvis pour convertir un fichier en Base64
+    // (À placer en dehors de l'objet apiService, juste au-dessus)
+    toBase64: (file) => new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => {
+            // On retire l'en-tête "data:application/pdf;base64," pour ne garder que le contenu brut
+            const base64String = reader.result.split(',')[1];
+            resolve(base64String);
+        };
+        reader.onerror = error => reject(error);
+    }),
+
     login: async (email, password) => {
         const response = await fetch(`${API_BASE_URL}/users/login`, {
             method: 'POST',
@@ -79,7 +93,8 @@ export const apiService = {
         if (!response.ok) throw new Error("Échec de la mise à jour du profil.");
         return await response.text();
     },
-// 4. Récupérer les candidatures d'une offre
+
+    // 4. Récupérer les candidatures d'une offre
     getApplicationsByOffer: async (offerId) => {
         const response = await fetch(`${API_BASE_URL}/applications/offer/${offerId}`, {
             credentials: 'include'
@@ -122,7 +137,6 @@ export const apiService = {
         return await response.json();
     },
 
-    // Dans apiService (api.js)
     createEnterprise: async (enterpriseData) => {
         const response = await fetch(`${API_BASE_URL}/enterprises/create`, {
             method: 'POST',
@@ -137,7 +151,6 @@ export const apiService = {
         return await response.json();
     },
 
-
     applyToOffer: async (applicationData) => {
         const response = await fetch(`${API_BASE_URL}/applications/create`, {
             method: 'POST',
@@ -151,7 +164,6 @@ export const apiService = {
         }
         return await response.json();
     },
-
 
     getAllOffers: async () => {
         const response = await fetch(`${API_BASE_URL}/offers/all`, {
@@ -189,6 +201,64 @@ export const apiService = {
             const errorMsg = await response.text();
             throw new Error(errorMsg || "Échec de la création de l'offre.");
         }
+        return await response.json();
+    },
+
+    // 1. Récupération du CV (On lit du JSON, on le transforme en Fichier)
+    getCV: async (studentId) => {
+        const response = await fetch(`${API_BASE_URL}/cv/${studentId}`, {
+            method: 'GET',
+            credentials: 'include'
+        });
+
+        if (!response.ok) {
+            throw new Error("Impossible de charger le CV.");
+        }
+
+        // Le Back-end renvoie un JSON
+        const data = await response.json();
+
+        // On récupère la chaîne Base64 envoyée par le Java
+        const base64Content = data.content;
+
+        // Transformation de la chaîne Base64 en Blob binaire pour que le navigateur puisse l'afficher
+        const byteCharacters = atob(base64Content);
+        const byteNumbers = new Array(byteCharacters.length);
+        for (let i = 0; i < byteCharacters.length; i++) {
+            byteNumbers[i] = byteCharacters.charCodeAt(i);
+        }
+        const byteArray = new Uint8Array(byteNumbers);
+
+        // On renvoie le Blob, exactement comme l'attendait OfferApplications.jsx
+        return new Blob([byteArray], { type: 'application/pdf' });
+    },
+
+    // 2. Envoi du CV (On transforme le fichier en Base64, on l'envoie en JSON)
+    uploadCV: async (studentId, file) => {
+        // On convertit le fichier binaire en texte Base64
+        const base64Content = await apiService.toBase64(file);
+
+        // On construit l'objet JSON qui correspond à votre CvUploadDto en Java
+        const payload = {
+            fileName: file.name,
+            base64Content: base64Content
+        };
+
+        // L'URL utilise maintenant le studentId comme défini dans votre @Path("/{studentId}")
+        const response = await fetch(`${API_BASE_URL}/cv/${studentId}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json' // Retour au JSON !
+            },
+            credentials: 'include',
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorMsg = await response.text();
+            throw new Error(errorMsg || "Échec de l'envoi du CV vers la base de données.");
+        }
+
         return await response.json();
     },
 };
