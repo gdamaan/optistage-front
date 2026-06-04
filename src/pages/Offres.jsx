@@ -15,6 +15,10 @@ export default function Offers() {
     // États pour la modale de candidature
     const [selectedOffer, setSelectedOffer] = useState(null);
     const [motivationLetter, setMotivationLetter] = useState('');
+
+    // NOUVEAU : État pour stocker le fichier CV sélectionné par l'étudiant
+    const [cvFile, setCvFile] = useState(null);
+
     const [applyStatus, setApplyStatus] = useState({ loading: false, message: '', type: '' });
 
     const titleQuery = searchParams.get('title') || '';
@@ -52,22 +56,39 @@ export default function Offers() {
             return;
         }
 
-        setApplyStatus({ loading: true, message: '', type: '' });
+        // NOUVEAU : Vérification de sécurité, on force l'étudiant à mettre un CV
+        if (!cvFile) {
+            setApplyStatus({ loading: false, type: 'error', message: 'Veuillez joindre votre CV au format PDF.' });
+            return;
+        }
 
-        // On utilise exactement les noms de variables listés par votre erreur Java
-        const applicationData = {
-            studentId: currentUser.id,
-            offerId: selectedOffer.id,
-            motivationLetter: motivationLetter,
-            status: "EN_ATTENTE"
-        };
+        setApplyStatus({ loading: true, message: 'Envoi du CV sécurisé en cours...', type: '' });
 
         try {
+            // NOUVEAU : 1. On envoie d'abord le CV dans la base NoSQL et on récupère son ID
+            const generatedCvId = await apiService.uploadCV(cvFile);
+
+            setApplyStatus({ loading: true, message: 'Transmission du dossier académique...', type: '' });
+
+            // NOUVEAU : 2. On prépare la candidature SQL en y glissant l'ID du CV
+            const applicationData = {
+                studentId: currentUser.id,
+                offerId: selectedOffer.id,
+                motivationLetter: motivationLetter,
+                status: "EN_ATTENTE",
+                cvId: generatedCvId // Le lien entre SQL et NoSQL se fait ici
+            };
+
+            // 3. On valide la candidature
             await apiService.applyToOffer(applicationData);
+
             setApplyStatus({ loading: false, type: 'success', message: 'Candidature transmise avec succès !' });
+
+            // Nettoyage de la modale
             setTimeout(() => {
                 setSelectedOffer(null);
                 setMotivationLetter('');
+                setCvFile(null); // On vide le fichier
                 setApplyStatus({ loading: false, message: '', type: '' });
             }, 2000);
         } catch (err) {
@@ -135,12 +156,11 @@ export default function Offers() {
                 </div>
             )}
 
-            {/* MODALE DE CANDIDATURE (S'affiche uniquement si selectedOffer n'est pas null) */}
+            {/* MODALE DE CANDIDATURE */}
             {selectedOffer && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-200">
                     <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
 
-                        {/* En-tête de la modale */}
                         <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-blue-50/50">
                             <div>
                                 <h2 className="text-xl font-bold text-blue-900">{selectedOffer.title}</h2>
@@ -151,7 +171,6 @@ export default function Offers() {
                             </button>
                         </div>
 
-                        {/* Corps de la modale avec défilement */}
                         <div className="p-6 overflow-y-auto">
                             <div className="mb-6">
                                 <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">Missions</h3>
@@ -161,6 +180,21 @@ export default function Offers() {
                             </div>
 
                             <form onSubmit={handleApply} className="space-y-4">
+
+                                {/* NOUVEAU : Champ d'upload du CV */}
+                                <div>
+                                    <h3 className="text-xs font-black text-blue-600 uppercase tracking-wider mb-2">
+                                        <i className="fa-solid fa-file-pdf mr-1"></i> Votre Curriculum Vitae (PDF)
+                                    </h3>
+                                    <input
+                                        type="file"
+                                        accept=".pdf"
+                                        required
+                                        onChange={(e) => setCvFile(e.target.files[0])}
+                                        className="w-full p-3 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-600 transition-all text-sm bg-gray-50 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+                                    />
+                                </div>
+
                                 <div>
                                     <h3 className="text-xs font-black text-blue-600 uppercase tracking-wider mb-2">
                                         <i className="fa-solid fa-pen-nib mr-1"></i> Votre Lettre de Motivation
@@ -176,7 +210,8 @@ export default function Offers() {
                                 </div>
 
                                 {applyStatus.message && (
-                                    <div className={`p-3 rounded-xl text-sm font-bold text-center ${applyStatus.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                                    <div className={`p-3 rounded-xl text-sm font-bold text-center ${applyStatus.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                                        {applyStatus.loading && <i className="fa-solid fa-circle-notch fa-spin mr-2"></i>}
                                         {applyStatus.message}
                                     </div>
                                 )}
@@ -194,8 +229,7 @@ export default function Offers() {
                                         disabled={applyStatus.loading}
                                         className="bg-blue-600 text-white px-8 py-2.5 rounded-xl font-bold shadow-lg hover:bg-blue-700 hover:shadow-xl transition-all disabled:opacity-50 flex items-center gap-2"
                                     >
-                                        {applyStatus.loading ? <i className="fa-solid fa-circle-notch fa-spin"></i> : <i className="fa-solid fa-paper-plane"></i>}
-                                        {applyStatus.loading ? 'Envoi...' : 'Transmettre le dossier'}
+                                        <i className="fa-solid fa-paper-plane"></i> Transmettre le dossier
                                     </button>
                                 </div>
                             </form>

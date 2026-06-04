@@ -204,9 +204,10 @@ export const apiService = {
         return await response.json();
     },
 
-    // 1. Récupération du CV (On lit du JSON, on le transforme en Fichier)
-    getCV: async (studentId) => {
-        const response = await fetch(`${API_BASE_URL}/cv/${studentId}`, {
+// 1. Récupération du CV (On lit du JSON, on le transforme en Fichier)
+    getCV: async (cvId) => { // <-- MODIFICATION ICI : On prend cvId
+        // L'URL utilise maintenant cvId pour chercher directement dans la base NoSQL
+        const response = await fetch(`${API_BASE_URL}/cv/${cvId}`, {
             method: 'GET',
             credentials: 'include'
         });
@@ -233,8 +234,8 @@ export const apiService = {
         return new Blob([byteArray], { type: 'application/pdf' });
     },
 
-    // 2. Envoi du CV (On transforme le fichier en Base64, on l'envoie en JSON)
-    uploadCV: async (studentId, file) => {
+// 2. Envoi du CV (On transforme le fichier en Base64, on l'envoie en JSON)
+    uploadCV: async (file) => {
         // On convertit le fichier binaire en texte Base64
         const base64Content = await apiService.toBase64(file);
 
@@ -244,11 +245,11 @@ export const apiService = {
             base64Content: base64Content
         };
 
-        // L'URL utilise maintenant le studentId comme défini dans votre @Path("/{studentId}")
-        const response = await fetch(`${API_BASE_URL}/cv/${studentId}`, {
+        // L'URL est maintenant générique, exactement comme dans le CvController
+        const response = await fetch(`${API_BASE_URL}/cv/upload`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json' // Retour au JSON !
+                'Content-Type': 'application/json'
             },
             credentials: 'include',
             body: JSON.stringify(payload)
@@ -256,9 +257,38 @@ export const apiService = {
 
         if (!response.ok) {
             const errorMsg = await response.text();
-            throw new Error(errorMsg || "Échec de l'envoi du CV vers la base de données.");
+            throw new Error(errorMsg || "Échec de l'envoi du CV vers la base NoSQL.");
         }
 
+        const data = await response.json();
+        // On récupère l'ID généré par MongoDB !
+        return data.cvId;
+    },
+
+    // --- NOUVELLES MÉTHODES POUR LES STAGES (INTERNSHIPS) ---
+
+    // 1. Récupérer TOUS les stages (Vue Professeur / Admin V1)
+    getAllInternships: async () => {
+        const response = await fetch(`${API_BASE_URL}/internships/all`, {
+            credentials: 'include'
+        });
+        if (!response.ok) throw new Error("Impossible de récupérer la liste des stages.");
         return await response.json();
     },
+
+    // 2. Mettre à jour un stage (Statut convention, Note, Feedback)
+    updateInternship: async (id, internshipData) => {
+        const response = await fetch(`${API_BASE_URL}/internships/update/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            // On envoie les champs modifiés (ex: conventionStatus, note_finale)
+            body: JSON.stringify(internshipData)
+        });
+        if (!response.ok) {
+            const errorMsg = await response.text();
+            throw new Error(errorMsg || "Échec de la mise à jour du stage.");
+        }
+        return await response.json();
+    }
 };
