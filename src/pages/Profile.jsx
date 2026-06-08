@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { apiService } from '../services/api';
 
 export default function Profile({ user, onUpdateUser }) {
-    // Initialisation sécurisée
     const [formData, setFormData] = useState({
         firstname: user?.firstname || '',
         lastname: user?.lastname || '',
@@ -10,8 +9,6 @@ export default function Profile({ user, onUpdateUser }) {
         email: user?.email || ''
     });
 
-    // --- PROTOCOLE DE RÉHYDRATATION ---
-    // Indispensable pour remplir les champs quand 'user' arrive après le chargement du localStorage
     useEffect(() => {
         if (user) {
             setFormData({
@@ -21,12 +18,10 @@ export default function Profile({ user, onUpdateUser }) {
                 email: user.email || ''
             });
 
-            // On prépare aussi le managerId pour le formulaire entreprise
             setEntFormData(prev => ({ ...prev, managerId: user.id }));
         }
     }, [user]);
 
-    // --- ÉTATS POUR L'ENTREPRISE ---
     const [enterprise, setEnterprise] = useState(null);
     const [isEditingEnterprise, setIsEditingEnterprise] = useState(false);
     const [isRegisteringEnterprise, setIsRegisteringEnterprise] = useState(false);
@@ -103,7 +98,8 @@ export default function Profile({ user, onUpdateUser }) {
 
     return (
         <div className="max-w-5xl mx-auto p-6 space-y-8">
-            <h1 className="text-3xl font-bold text-blue-900 border-b pb-4">
+            {/* Remplacement des bleus par le Gris Anthracite (brand-900) */}
+            <h1 className="text-3xl font-bold text-brand-900 border-b pb-4">
                 Mon Profil <span className="text-sm font-normal text-gray-500">({user?.role})</span>
             </h1>
 
@@ -116,14 +112,17 @@ export default function Profile({ user, onUpdateUser }) {
             <div className="grid md:grid-cols-2 gap-8 items-start">
                 <form onSubmit={handleUserUpdate} className="bg-white p-6 rounded-3xl shadow-lg space-y-4 border border-gray-100">
                     <h2 className="font-bold text-gray-700 flex items-center gap-2">
-                        <i className="fa-solid fa-user-circle text-blue-600"></i> Informations Personnelles
+                        {/* L'icône passe en Émeraude (accent-500) */}
+                        <i className="fa-solid fa-user-circle text-accent-500"></i> Informations Personnelles
                     </h2>
                     <div className="space-y-3">
-                        <input required className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" value={formData.firstname} onChange={e => setFormData({...formData, firstname: e.target.value})} placeholder="Prénom" />
-                        <input required className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none" value={formData.lastname} onChange={e => setFormData({...formData, lastname: e.target.value})} placeholder="Nom" />
+                        {/* Les focus ring passent en accent (Émeraude) */}
+                        <input required className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-accent-500 outline-none" value={formData.firstname} onChange={e => setFormData({...formData, firstname: e.target.value})} placeholder="Prénom" />
+                        <input required className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-accent-500 outline-none" value={formData.lastname} onChange={e => setFormData({...formData, lastname: e.target.value})} placeholder="Nom" />
                         <input className="w-full p-3 border rounded-xl bg-gray-50 text-gray-400 cursor-not-allowed" value={formData.email} disabled title="L'identifiant est immuable." />
                     </div>
-                    <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3 rounded-xl hover:bg-blue-700 transition shadow-md">
+                    {/* Le bouton d'action principal passe en accent (Émeraude) */}
+                    <button type="submit" className="w-full bg-accent-500 text-white font-bold py-3 rounded-xl hover:bg-accent-600 transition shadow-md">
                         Sauvegarder les changements
                     </button>
                 </form>
@@ -131,39 +130,41 @@ export default function Profile({ user, onUpdateUser }) {
                 {user?.role === 'Entreprise' && (
                     <div className="space-y-4">
                         {enterprise && !isEditingEnterprise ? (
-                            <div className="bg-white p-6 rounded-3xl shadow-lg border-2 border-blue-100 space-y-4 animate-in slide-in-from-right-4">
-                                <h2 className="font-bold text-blue-900 flex items-center gap-2">
-                                    <i className="fa-solid fa-building text-blue-600"></i> Ma Société
+                            // Remplacement des bordures et fonds bleus par le Gris Anthracite (brand)
+                            <div className="bg-white p-6 rounded-3xl shadow-lg border-2 border-brand-100 space-y-4 animate-in slide-in-from-right-4">
+                                <h2 className="font-bold text-brand-900 flex items-center gap-2">
+                                    <i className="fa-solid fa-building text-brand-600"></i> Ma Société
                                 </h2>
-                                <div className="space-y-2 border-l-4 border-blue-600 pl-4 bg-blue-50/50 py-2 rounded-r-xl">
+                                <div className="space-y-2 border-l-4 border-brand-600 pl-4 bg-brand-50 py-2 rounded-r-xl">
                                     <p className="text-sm"><strong>Nom:</strong> {enterprise.name}</p>
                                     <p className="text-sm"><strong>SIRET:</strong> {enterprise.siret}</p>
                                     <p className="text-sm"><strong>Secteur:</strong> {enterprise.sector || 'N/A'}</p>
                                 </div>
-                                <button onClick={startEditingEnterprise} className="w-full bg-blue-50 text-blue-600 font-bold py-3 rounded-xl hover:bg-blue-100 transition border border-blue-200">
+                                <button onClick={startEditingEnterprise} className="w-full bg-brand-50 text-brand-900 font-bold py-3 rounded-xl hover:bg-brand-100 transition border border-brand-200">
                                     Modifier la fiche entreprise
                                 </button>
                             </div>
                         ) : (enterprise || isRegisteringEnterprise || isEditingEnterprise) ? (
-                            <form onSubmit={handleEnterpriseSubmit} className="bg-white p-6 rounded-3xl shadow-lg border-2 border-blue-100 space-y-3 animate-in zoom-in-95">
-                                <h2 className="font-bold text-blue-900">
+                            <form onSubmit={handleEnterpriseSubmit} className="bg-white p-6 rounded-3xl shadow-lg border-2 border-brand-100 space-y-3 animate-in zoom-in-95">
+                                <h2 className="font-bold text-brand-900">
                                     {isEditingEnterprise ? "Mise à jour technique" : "Nouvel enregistrement"}
                                 </h2>
-                                <input required className="w-full p-3 border rounded-xl" value={entFormData.name} placeholder="Nom commercial" onChange={e => setEntFormData({...entFormData, name: e.target.value})} />
-                                <input required className="w-full p-3 border rounded-xl" value={entFormData.siret} placeholder="SIRET (14 chiffres)" maxLength="14" onChange={e => setEntFormData({...entFormData, siret: e.target.value})} />
-                                <input className="w-full p-3 border rounded-xl" value={entFormData.sector} placeholder="Secteur" onChange={e => setEntFormData({...entFormData, sector: e.target.value})} />
-                                <input className="w-full p-3 border rounded-xl" value={entFormData.website} placeholder="Site Web (URL)" onChange={e => setEntFormData({...entFormData, website: e.target.value})} />
-                                <textarea className="w-full p-3 border rounded-xl" value={entFormData.description} placeholder="Mission de l'entreprise" rows="3" onChange={e => setEntFormData({...entFormData, description: e.target.value})}></textarea>
+                                {/* Les inputs prennent le focus ring Émeraude */}
+                                <input required className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-accent-500 outline-none" value={entFormData.name} placeholder="Nom commercial" onChange={e => setEntFormData({...entFormData, name: e.target.value})} />
+                                <input required className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-accent-500 outline-none" value={entFormData.siret} placeholder="SIRET (14 chiffres)" maxLength="14" onChange={e => setEntFormData({...entFormData, siret: e.target.value})} />
+                                <input className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-accent-500 outline-none" value={entFormData.sector} placeholder="Secteur" onChange={e => setEntFormData({...entFormData, sector: e.target.value})} />
+                                <input className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-accent-500 outline-none" value={entFormData.website} placeholder="Site Web (URL)" onChange={e => setEntFormData({...entFormData, website: e.target.value})} />
+                                <textarea className="w-full p-3 border rounded-xl focus:ring-2 focus:ring-accent-500 outline-none" value={entFormData.description} placeholder="Mission de l'entreprise" rows="3" onChange={e => setEntFormData({...entFormData, description: e.target.value})}></textarea>
                                 <div className="flex gap-2">
                                     <button type="button" onClick={() => {setIsEditingEnterprise(false); setIsRegisteringEnterprise(false);}} className="flex-1 bg-gray-100 py-3 rounded-xl font-bold">Annuler</button>
-                                    <button type="submit" className="flex-[2] bg-blue-600 text-white font-bold py-3 rounded-xl shadow-lg">Confirmer</button>
+                                    <button type="submit" className="flex-[2] bg-accent-500 text-white font-bold py-3 rounded-xl shadow-lg hover:bg-accent-600 transition">Confirmer</button>
                                 </div>
                             </form>
                         ) : (
                             <div className="bg-amber-50 border-2 border-dashed border-amber-200 p-8 rounded-3xl text-center space-y-4">
                                 <i className="fa-solid fa-triangle-exclamation text-amber-500 text-3xl"></i>
                                 <p className="text-amber-800 text-sm italic">Aucune structure détectée. Veuillez régulariser votre situation.</p>
-                                <button onClick={() => setIsRegisteringEnterprise(true)} className="bg-amber-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-amber-700 transition shadow-lg">
+                                <button onClick={() => setIsRegisteringEnterprise(true)} className="bg-amber-500 text-white px-6 py-3 rounded-xl font-bold hover:bg-amber-600 transition shadow-lg">
                                     Enregistrer ma société
                                 </button>
                             </div>

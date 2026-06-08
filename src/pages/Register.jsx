@@ -20,7 +20,6 @@ export default function Register() {
         isActive: false
     });
 
-    // --- NOUVEAU : État dédié aux données de l'entreprise ---
     const [enterpriseData, setEnterpriseData] = useState({
         name: '',
         siret: '',
@@ -71,7 +70,6 @@ export default function Register() {
             return false;
         }
 
-        // --- NOUVEAU : Validation spécifique si le rôle est "Entreprise" ---
         if (role.name === 'Entreprise') {
             if (!enterpriseData.name || !enterpriseData.siret) {
                 setError("Les informations de l'entreprise (Nom et SIRET) sont obligatoires.");
@@ -101,7 +99,6 @@ export default function Register() {
         }
     };
 
-    // --- NOUVEAU : Gestionnaire pour les champs de l'entreprise ---
     const handleEnterpriseChange = (e) => {
         const { name, value } = e.target;
         setEnterpriseData({ ...enterpriseData, [name]: value });
@@ -124,14 +121,13 @@ export default function Register() {
             birthdate: formattedBirthdate
         };
 
-        // --- NOUVEAU : Injection des données entreprise dans le flux principal ---
         if (formData.role.name === 'Entreprise') {
             dataToSend.enterprise = enterpriseData;
         }
 
         try {
             await apiService.register(dataToSend);
-            alert("Inscription réussie ! Veuillez attendre la validation d'un administrateur.");
+            alert("Inscription réussie ! Veuillez valider votre compte en cliquant sur le lien qui vient de vous être envoyé par e-mail.");
             navigate('/login');
         } catch (err) {
             setError(err.message);
@@ -139,10 +135,12 @@ export default function Register() {
     };
 
     return (
-        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4 py-12">
+        // Remplacement du fond par le gris très léger de la charte
+        <div className="min-h-screen bg-brand-100 flex items-center justify-center p-4 py-12">
             <div className="bg-white/90 backdrop-blur-md p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white/10">
                 <div className="text-center mb-6">
-                    <h2 className="text-3xl font-bold text-blue-900">OptiStage</h2>
+                    {/* Gris Anthracite pour le titre */}
+                    <h2 className="text-3xl font-bold text-brand-900">OptiStage</h2>
                     <p className="text-gray-500 mt-2 text-sm">Initialisation des protocoles</p>
                 </div>
 
@@ -150,31 +148,32 @@ export default function Register() {
 
                 <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="grid grid-cols-2 gap-3">
+                        {/* Focus ring Émeraude pour tous les inputs */}
                         <input name="firstname" placeholder="Prénom" onChange={handleChange} required
-                               className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-600 outline-none transition" />
+                               className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent-500 outline-none transition" />
                         <input name="lastname" placeholder="Nom" onChange={handleChange} required
-                               className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-600 outline-none transition" />
+                               className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent-500 outline-none transition" />
                     </div>
 
                     <div className="flex flex-col gap-1">
                         <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Date de naissance</label>
                         <input type="date" name="birthdate" onChange={handleChange} required
-                               className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-600 outline-none transition" />
+                               className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent-500 outline-none transition" />
                     </div>
 
                     <input type="email" name="email" placeholder="Email" onChange={handleChange} required
-                           className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-600 outline-none transition" />
+                           className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent-500 outline-none transition" />
 
                     <div>
                         <input type="password" name="password" placeholder="Mot de passe" onChange={handleChange} required
-                               className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-blue-600 outline-none transition" />
+                               className="w-full px-4 py-2.5 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent-500 outline-none transition" />
                     </div>
 
                     <div className="grid grid-cols-2 gap-3">
                         <div className="flex flex-col gap-1">
                             <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Profil</label>
                             <select name="roleId" onChange={handleChange} required
-                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 outline-none focus:ring-2 focus:ring-blue-600">
+                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 outline-none focus:ring-2 focus:ring-accent-500">
                                 <option value="">Choisir</option>
                                 {roles.map((r) => <option key={r.id} value={r.id}>{r.label}</option>)}
                             </select>
@@ -182,7 +181,7 @@ export default function Register() {
                         <div className="flex flex-col gap-1">
                             <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">Sécurité</label>
                             <select name="questionId" onChange={handleChange} required
-                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 outline-none focus:ring-2 focus:ring-blue-600">
+                                    className="w-full px-4 py-2.5 rounded-xl border border-gray-200 bg-gray-50 outline-none focus:ring-2 focus:ring-accent-500">
                                 <option value="">Question</option>
                                 {questions.map((q) => <option key={q.id} value={q.id}>{q.libelle}</option>)}
                             </select>
@@ -190,32 +189,33 @@ export default function Register() {
                     </div>
 
                     <input name="response" placeholder="Réponse à la question secrète" onChange={handleChange} required
-                           className="w-full px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-blue-600 transition" />
+                           className="w-full px-4 py-2.5 rounded-xl border border-gray-200 outline-none focus:ring-2 focus:ring-accent-500 transition" />
 
-                    {/* --- NOUVEAU : Bloc dynamique conditionnel pour l'Entreprise --- */}
                     {formData.role.name === 'Entreprise' && (
-                        <div className="p-4 bg-blue-50 border border-blue-100 rounded-2xl space-y-3 animate-in zoom-in-95 duration-200">
-                            <h3 className="text-xs font-bold text-blue-900 uppercase flex items-center gap-2">
+                        // Le bloc entreprise s'adapte à la charte sombre/propre
+                        <div className="p-4 bg-brand-50 border border-brand-200 rounded-2xl space-y-3 animate-in zoom-in-95 duration-200">
+                            <h3 className="text-xs font-bold text-brand-900 uppercase flex items-center gap-2">
                                 <i className="fa-solid fa-building"></i> Informations Société
                             </h3>
                             <input name="name" placeholder="Nom de l'entreprise" onChange={handleEnterpriseChange} required
-                                   className="w-full px-4 py-2.5 rounded-xl border border-blue-200 outline-none focus:ring-2 focus:ring-blue-600 transition text-sm" />
+                                   className="w-full px-4 py-2.5 rounded-xl border border-brand-200 outline-none focus:ring-2 focus:ring-accent-500 transition text-sm" />
                             <div className="grid grid-cols-2 gap-3">
                                 <input name="siret" placeholder="SIRET (14 chiffres)" maxLength="14" onChange={handleEnterpriseChange} required
-                                       className="w-full px-4 py-2.5 rounded-xl border border-blue-200 outline-none focus:ring-2 focus:ring-blue-600 transition text-sm font-mono" />
+                                       className="w-full px-4 py-2.5 rounded-xl border border-brand-200 outline-none focus:ring-2 focus:ring-accent-500 transition text-sm font-mono" />
                                 <input name="sector" placeholder="Secteur d'activité" onChange={handleEnterpriseChange}
-                                       className="w-full px-4 py-2.5 rounded-xl border border-blue-200 outline-none focus:ring-2 focus:ring-blue-600 transition text-sm" />
+                                       className="w-full px-4 py-2.5 rounded-xl border border-brand-200 outline-none focus:ring-2 focus:ring-accent-500 transition text-sm" />
                             </div>
                         </div>
                     )}
 
-                    <button type="submit" className="w-full bg-blue-600 text-white font-bold py-3.5 rounded-xl shadow-lg hover:brightness-110 active:scale-95 transition-all mt-2">
+                    {/* Bouton d'action Émeraude avec effet au survol */}
+                    <button type="submit" className="w-full bg-accent-500 hover:bg-accent-600 text-white font-bold py-3.5 rounded-xl shadow-lg active:scale-95 transition-all mt-2">
                         Démarrer l'inscription
                     </button>
                 </form>
 
                 <p className="text-center text-xs text-gray-400 mt-6">
-                    Déjà membre ? <Link to="/login" className="text-blue-600 font-bold hover:underline">Connexion</Link>
+                    Déjà membre ? <Link to="/login" className="text-accent-500 font-bold hover:text-accent-600 hover:underline transition-colors">Connexion</Link>
                 </p>
             </div>
         </div>

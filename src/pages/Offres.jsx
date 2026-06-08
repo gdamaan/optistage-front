@@ -16,7 +16,7 @@ export default function Offers() {
     const [selectedOffer, setSelectedOffer] = useState(null);
     const [motivationLetter, setMotivationLetter] = useState('');
 
-    // NOUVEAU : État pour stocker le fichier CV sélectionné par l'étudiant
+    // État pour stocker le fichier CV sélectionné par l'étudiant
     const [cvFile, setCvFile] = useState(null);
 
     const [applyStatus, setApplyStatus] = useState({ loading: false, message: '', type: '' });
@@ -56,7 +56,6 @@ export default function Offers() {
             return;
         }
 
-        // NOUVEAU : Vérification de sécurité, on force l'étudiant à mettre un CV
         if (!cvFile) {
             setApplyStatus({ loading: false, type: 'error', message: 'Veuillez joindre votre CV au format PDF.' });
             return;
@@ -65,21 +64,18 @@ export default function Offers() {
         setApplyStatus({ loading: true, message: 'Envoi du CV sécurisé en cours...', type: '' });
 
         try {
-            // NOUVEAU : 1. On envoie d'abord le CV dans la base NoSQL et on récupère son ID
             const generatedCvId = await apiService.uploadCV(cvFile);
 
             setApplyStatus({ loading: true, message: 'Transmission du dossier académique...', type: '' });
 
-            // NOUVEAU : 2. On prépare la candidature SQL en y glissant l'ID du CV
             const applicationData = {
                 studentId: currentUser.id,
                 offerId: selectedOffer.id,
                 motivationLetter: motivationLetter,
                 status: "EN_ATTENTE",
-                cvId: generatedCvId // Le lien entre SQL et NoSQL se fait ici
+                cvId: generatedCvId
             };
 
-            // 3. On valide la candidature
             await apiService.applyToOffer(applicationData);
 
             setApplyStatus({ loading: false, type: 'success', message: 'Candidature transmise avec succès !' });
@@ -88,7 +84,7 @@ export default function Offers() {
             setTimeout(() => {
                 setSelectedOffer(null);
                 setMotivationLetter('');
-                setCvFile(null); // On vide le fichier
+                setCvFile(null);
                 setApplyStatus({ loading: false, message: '', type: '' });
             }, 2000);
         } catch (err) {
@@ -100,19 +96,22 @@ export default function Offers() {
         <div className="max-w-7xl mx-auto p-6 space-y-6 relative">
             <header className="flex justify-between items-end border-b pb-6">
                 <div>
-                    <h1 className="text-3xl font-black text-blue-900 tracking-tight">
+                    {/* Titre principal en Gris Anthracite */}
+                    <h1 className="text-3xl font-black text-brand-900 tracking-tight">
                         {titleQuery ? `Résultats pour "${titleQuery}"` : "Toutes les offres"}
                     </h1>
                     <p className="text-gray-500 mt-1">Trouvez le stage qui propulsera votre carrière.</p>
                 </div>
-                <div className="text-sm font-bold text-blue-600 bg-blue-50 px-4 py-2 rounded-full">
+                {/* Badge du nombre d'offres en Émeraude doux */}
+                <div className="text-sm font-bold text-accent-600 bg-accent-50 px-4 py-2 rounded-full border border-accent-100">
                     {offers.length} offre(s) trouvée(s)
                 </div>
             </header>
 
             {loading ? (
                 <div className="flex justify-center py-20">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+                    {/* Spinner Émeraude */}
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-accent-500"></div>
                 </div>
             ) : error ? (
                 <div className="bg-red-50 text-red-700 p-6 rounded-3xl border border-red-100 text-center">
@@ -124,7 +123,8 @@ export default function Offers() {
                     {offers.map((offer) => (
                         <div key={offer.id} className="bg-white p-6 rounded-3xl shadow-lg border border-gray-100 hover:shadow-xl transition-all group flex flex-col">
                             <div className="flex justify-between items-start mb-4">
-                                <span className="bg-blue-600 text-white text-[10px] font-black px-2 py-1 rounded uppercase">
+                                {/* Tag entreprise en Gris Anthracite profond pour un look premium */}
+                                <span className="bg-brand-900 text-white text-[10px] font-black px-2 py-1 rounded uppercase">
                                     {offer.enterprise?.name || 'Entreprise'}
                                 </span>
                                 <span className="text-gray-400 text-xs flex items-center gap-1">
@@ -132,7 +132,8 @@ export default function Offers() {
                                 </span>
                             </div>
 
-                            <h3 className="text-lg font-bold text-gray-800 group-hover:text-blue-600 transition-colors mb-3">
+                            {/* Titre de l'offre, hover en Émeraude */}
+                            <h3 className="text-lg font-bold text-brand-900 group-hover:text-accent-500 transition-colors mb-3">
                                 {offer.title}
                             </h3>
 
@@ -146,7 +147,8 @@ export default function Offers() {
                                 </div>
                                 <button
                                     onClick={() => setSelectedOffer(offer)}
-                                    className="bg-gray-900 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-blue-600 transition-colors"
+                                    // Bouton postuler : Gris de base, hover en Émeraude
+                                    className="bg-brand-900 text-white px-4 py-2 rounded-xl text-xs font-bold hover:bg-accent-500 transition-colors"
                                 >
                                     Postuler
                                 </button>
@@ -161,9 +163,10 @@ export default function Offers() {
                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-gray-900/60 backdrop-blur-sm animate-in fade-in duration-200">
                     <div className="bg-white rounded-3xl shadow-2xl w-full max-w-2xl overflow-hidden flex flex-col max-h-[90vh]">
 
-                        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-blue-50/50">
+                        {/* Header de la modale en gris très léger */}
+                        <div className="p-6 border-b border-gray-100 flex justify-between items-center bg-brand-50/50">
                             <div>
-                                <h2 className="text-xl font-bold text-blue-900">{selectedOffer.title}</h2>
+                                <h2 className="text-xl font-bold text-brand-900">{selectedOffer.title}</h2>
                                 <p className="text-sm text-gray-500 font-medium">{selectedOffer.enterprise?.name} • {selectedOffer.ville}</p>
                             </div>
                             <button onClick={() => setSelectedOffer(null)} className="w-8 h-8 flex items-center justify-center rounded-full bg-gray-200 text-gray-600 hover:bg-red-500 hover:text-white transition-colors">
@@ -174,30 +177,31 @@ export default function Offers() {
                         <div className="p-6 overflow-y-auto">
                             <div className="mb-6">
                                 <h3 className="text-xs font-black text-gray-400 uppercase tracking-wider mb-2">Missions</h3>
-                                <p className="text-sm text-gray-700 leading-relaxed bg-gray-50 p-4 rounded-xl border border-gray-100">
+                                <p className="text-sm text-gray-700 leading-relaxed bg-brand-50 p-4 rounded-xl border border-brand-100">
                                     {selectedOffer.description}
                                 </p>
                             </div>
 
                             <form onSubmit={handleApply} className="space-y-4">
 
-                                {/* NOUVEAU : Champ d'upload du CV */}
                                 <div>
-                                    <h3 className="text-xs font-black text-blue-600 uppercase tracking-wider mb-2">
-                                        <i className="fa-solid fa-file-pdf mr-1"></i> Votre Curriculum Vitae (PDF)
+                                    {/* Titres des champs en Gris Anthracite */}
+                                    <h3 className="text-xs font-black text-brand-900 uppercase tracking-wider mb-2">
+                                        <i className="fa-solid fa-file-pdf mr-1 text-red-500"></i> Votre Curriculum Vitae (PDF)
                                     </h3>
                                     <input
                                         type="file"
                                         accept=".pdf"
                                         required
                                         onChange={(e) => setCvFile(e.target.files[0])}
-                                        className="w-full p-3 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-600 transition-all text-sm bg-gray-50 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer"
+                                        // Focus ring Émeraude, style du bouton d'upload accordé
+                                        className="w-full p-3 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-accent-500 transition-all text-sm bg-gray-50 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-bold file:bg-brand-100 file:text-brand-900 hover:file:bg-brand-200 cursor-pointer"
                                     />
                                 </div>
 
                                 <div>
-                                    <h3 className="text-xs font-black text-blue-600 uppercase tracking-wider mb-2">
-                                        <i className="fa-solid fa-pen-nib mr-1"></i> Votre Lettre de Motivation
+                                    <h3 className="text-xs font-black text-brand-900 uppercase tracking-wider mb-2">
+                                        <i className="fa-solid fa-pen-nib mr-1 text-accent-500"></i> Votre Lettre de Motivation
                                     </h3>
                                     <textarea
                                         required
@@ -205,12 +209,13 @@ export default function Offers() {
                                         value={motivationLetter}
                                         onChange={(e) => setMotivationLetter(e.target.value)}
                                         placeholder="Monsieur, Madame, Actuellement étudiant en..."
-                                        className="w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all text-sm resize-none shadow-inner bg-gray-50"
+                                        // Focus ring Émeraude
+                                        className="w-full p-4 border border-gray-200 rounded-2xl outline-none focus:ring-2 focus:ring-accent-500 focus:border-transparent transition-all text-sm resize-none shadow-inner bg-gray-50"
                                     ></textarea>
                                 </div>
 
                                 {applyStatus.message && (
-                                    <div className={`p-3 rounded-xl text-sm font-bold text-center ${applyStatus.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700'}`}>
+                                    <div className={`p-3 rounded-xl text-sm font-bold text-center ${applyStatus.type === 'success' ? 'bg-green-100 text-green-700' : 'bg-brand-100 text-brand-700'}`}>
                                         {applyStatus.loading && <i className="fa-solid fa-circle-notch fa-spin mr-2"></i>}
                                         {applyStatus.message}
                                     </div>
@@ -227,7 +232,8 @@ export default function Offers() {
                                     <button
                                         type="submit"
                                         disabled={applyStatus.loading}
-                                        className="bg-blue-600 text-white px-8 py-2.5 rounded-xl font-bold shadow-lg hover:bg-blue-700 hover:shadow-xl transition-all disabled:opacity-50 flex items-center gap-2"
+                                        // Bouton d'envoi en Émeraude
+                                        className="bg-accent-500 text-white px-8 py-2.5 rounded-xl font-bold shadow-lg hover:bg-accent-600 hover:shadow-xl transition-all disabled:opacity-50 flex items-center gap-2"
                                     >
                                         <i className="fa-solid fa-paper-plane"></i> Transmettre le dossier
                                     </button>

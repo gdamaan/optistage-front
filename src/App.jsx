@@ -11,6 +11,7 @@ import Offers from "./pages/Offres.jsx";
 import TutorDashboard from "./pages/TutorDashboard.jsx";
 import StudentDashboard from "./pages/StudentDashboard.jsx";
 import TeacherDashboard from "./pages/TeacherDashboard.jsx";
+import Validate from './pages/Validate';
 import OfferApplications from "./pages/OfferApplications.jsx";
 
 function App() {
@@ -54,6 +55,7 @@ function App() {
                         <Route path="/tutor-dashboard" element={<TutorDashboard user={user} />} />
                         <Route path="/tutor/offer/:id/applications" element={<OfferApplications />} />
                         <Route path="/profile" element={<Profile user={user} onUpdateUser={setUser} />} />
+                        <Route path="/validate" element={<Validate />} />
 
                     </Routes>
                 </main>

@@ -1,1 +1,19 @@
 @import "tailwindcss";
+
+@theme {
+    /* Gris Anthracite Profond (Primary) */
+    --color-brand-50: #f8fafc;
+    --color-brand-100: #f1f5f9;
+    --color-brand-600: #1e293b;
+    --color-brand-900: #0f172a;
+
+    /* Émeraude (Secondary/Action) */
+    --color-accent-50: #ecfdf5;
+    --color-accent-400: #34d399;
+    --color-accent-500: #10b981;
+    --color-accent-600: #059669;
+
+    /* Cyan (Tech) */
+    --color-tech-50: #ecfeff;
+    --color-tech-500: #06b6d4;
+}

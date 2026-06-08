@@ -290,5 +290,23 @@ export const apiService = {
             throw new Error(errorMsg || "Échec de la mise à jour du stage.");
         }
         return await response.json();
+    },
+
+    /**
+     * Méthode de validation de compte via token email
+     */
+    validateAccount: async (token) => {
+        const response = await fetch(`${API_BASE_URL}/users/validate?token=${encodeURIComponent(token)}`, {
+            method: 'GET',
+            // Pas besoin de 'credentials: include' ici, l'utilisateur n'est pas encore connecté
+        });
+
+        if (!response.ok) {
+            // Le backend renvoie du JSON même pour les erreurs, on tente de le lire
+            const errorData = await response.json().catch(() => ({}));
+            throw new Error(errorData.error || "Le lien est expiré ou invalide.");
+        }
+
+        return await response.json();
     }
 };

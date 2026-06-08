@@ -10,7 +10,6 @@ export default function Header({ user, onLogout }) {
     const handleSearch = (e) => {
         e.preventDefault();
         if (searchQuery.trim()) {
-            // On passe le terme en paramètre d'URL (?title=...)
             navigate(`/offers?title=${encodeURIComponent(searchQuery)}`);
             setSearchQuery('');
         } else {
@@ -23,37 +22,37 @@ export default function Header({ user, onLogout }) {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-20 gap-4">
 
-                    {/* Logo - Toujours visible */}
+                    {/* Logo */}
                     <Link to="/" className="shrink-0 flex items-center gap-2 cursor-pointer">
-                        <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center text-white text-xl font-bold shadow-lg">
+                        <div className="w-10 h-10 bg-brand-900 rounded-lg flex items-center justify-center text-white text-xl font-bold shadow-lg">
                             <i className="fa-solid fa-graduation-cap"></i>
                         </div>
-                        <span className="font-bold text-2xl tracking-tight text-blue-900 hidden sm:block">OptiStage</span>
+                        <span className="font-bold text-2xl tracking-tight text-brand-900 hidden sm:block">OptiStage</span>
                     </Link>
 
-                    {/* Barre de recherche Globale (Cachée sur très petits écrans) */}
+                    {/* Barre de recherche */}
                     <form onSubmit={handleSearch} className="hidden md:flex flex-1 max-w-md relative group">
                         <input
                             type="text"
                             placeholder="Rechercher un stage..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            className="w-full pl-5 pr-12 py-2.5 rounded-full border border-gray-200 bg-gray-50 focus:bg-white focus:border-blue-500 focus:ring-2 focus:ring-blue-200 outline-none transition-all text-sm shadow-inner"
+                            className="w-full pl-5 pr-12 py-2.5 rounded-full border border-gray-200 bg-gray-50 focus:bg-white focus:border-accent-500 focus:ring-2 focus:ring-accent-400 outline-none transition-all text-sm shadow-inner"
                         />
-                        <button type="submit" className="absolute right-1 top-1 bottom-1 bg-blue-600 text-white w-10 rounded-full hover:bg-blue-700 transition-colors flex items-center justify-center shadow-sm">
+                        <button type="submit" className="absolute right-1 top-1 bottom-1 bg-accent-500 text-white w-10 rounded-full hover:bg-accent-600 transition-colors flex items-center justify-center shadow-sm">
                             <i className="fa-solid fa-magnifying-glass text-xs"></i>
                         </button>
                     </form>
 
-                    {/* Navigation Centrale Opérationnelle */}
+                    {/* Navigation Centrale */}
                     <nav className="hidden lg:flex items-center space-x-6">
-                        <Link to="/offers" className="text-gray-600 hover:text-blue-600 font-bold transition text-sm">
+                        <Link to="/offers" className="text-gray-600 hover:text-brand-900 font-bold transition text-sm">
                             Offres de stage
                         </Link>
 
                         {/* Modules Étudiant */}
                         {user?.role === 'Étudiant' && (
-                            <Link to="/student-dashboard" className="text-blue-700 hover:text-blue-900 font-bold transition text-sm">
+                            <Link to="/student-dashboard" className="text-brand-600 hover:text-brand-900 font-bold transition text-sm">
                                 Mon Espace
                             </Link>
                         )}
@@ -61,28 +60,28 @@ export default function Header({ user, onLogout }) {
                         {/* Modules Entreprise/Tuteur */}
                         {user?.role === 'Entreprise' && (
                             <>
-                                <Link to="/tutor-dashboard" className="text-blue-700 hover:text-blue-900 font-bold transition text-sm">Mes Offres</Link>
-                                <Link to="/applications" className="text-blue-700 hover:text-blue-900 font-bold transition text-sm">Candidats</Link>
-                                <Link to="/evaluations" className="text-blue-700 hover:text-blue-900 font-bold transition text-sm">Évaluations</Link>
+                                <Link to="/tutor-dashboard" className="text-brand-600 hover:text-brand-900 font-bold transition text-sm">Mes Offres</Link>
+                                <Link to="/applications" className="text-brand-600 hover:text-brand-900 font-bold transition text-sm">Candidats</Link>
+                                <Link to="/evaluations" className="text-brand-600 hover:text-brand-900 font-bold transition text-sm">Évaluations</Link>
                             </>
                         )}
 
                         {/* Modules Professeur */}
                         {user?.role === 'Professeur' && (
-                            <Link to="/teacher-dashboard" className="text-blue-700 hover:text-blue-900 font-bold transition text-sm">
+                            <Link to="/teacher-dashboard" className="text-brand-600 hover:text-brand-900 font-bold transition text-sm">
                                 Console Professeur
                             </Link>
                         )}
                     </nav>
 
-                    {/* Zone de Session (Cockpit personnel) */}
+                    {/* Zone de Session */}
                     <div className="flex items-center gap-4 shrink-0">
                         {!user ? (
                             <>
-                                <Link to="/login" className="hidden md:block text-blue-700 font-semibold hover:text-blue-900 transition text-sm">
+                                <Link to="/login" className="hidden md:block text-brand-900 font-semibold hover:text-brand-600 transition text-sm">
                                     Connexion
                                 </Link>
-                                <Link to="/register" className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-full font-semibold shadow-md transition text-sm">
+                                <Link to="/register" className="bg-brand-900 hover:bg-brand-600 text-white px-5 py-2.5 rounded-full font-semibold shadow-md transition text-sm">
                                     S'inscrire
                                 </Link>
                             </>
@@ -93,13 +92,13 @@ export default function Header({ user, onLogout }) {
                                     onClick={() => setIsMenuOpen(!isMenuOpen)}
                                     className="flex items-center gap-3 bg-gray-50 hover:bg-gray-100 px-3 py-2 rounded-2xl border border-gray-200 transition-all shadow-sm"
                                 >
-                                    <div className="w-8 h-8 bg-blue-600 rounded-full flex items-center justify-center text-white text-sm shadow-md">
+                                    <div className="w-8 h-8 bg-brand-900 rounded-full flex items-center justify-center text-white text-sm shadow-md">
                                         <i className="fa-solid fa-user"></i>
                                     </div>
                                     <i className={`fa-solid fa-chevron-down text-xs text-gray-400 transition-transform ${isMenuOpen ? 'rotate-180' : ''}`}></i>
                                 </button>
 
-                                {/* Liste Déroulante (Exclusivement Identitaire) */}
+                                {/* Liste Déroulante */}
                                 {isMenuOpen && (
                                     <>
                                         <div className="fixed inset-0 z-40" onClick={() => setIsMenuOpen(false)}></div>
@@ -108,13 +107,13 @@ export default function Header({ user, onLogout }) {
 
                                             <div className="px-4 py-2 border-b border-gray-50 mb-1">
                                                 <p className="text-xs font-black text-gray-800 truncate">{user.firstname}</p>
-                                                <p className="text-[10px] font-bold text-blue-600 uppercase tracking-widest">{user.role}</p>
+                                                <p className="text-[10px] font-bold text-accent-500 uppercase tracking-widest">{user.role}</p>
                                             </div>
 
                                             <Link
                                                 to="/profile"
                                                 onClick={() => setIsMenuOpen(false)}
-                                                className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition font-medium"
+                                                className="flex items-center px-4 py-3 text-sm text-gray-700 hover:bg-brand-50 hover:text-brand-900 transition font-medium"
                                             >
                                                 <i className="fa-solid fa-user-gear w-6 text-gray-400"></i>
                                                 Mon Profil

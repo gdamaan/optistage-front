@@ -42,7 +42,7 @@ export default function OfferApplications() {
         }
     };
 
-    // NOUVEAU : Fonction pour récupérer et afficher le CV
+    // Fonction pour récupérer et afficher le CV
     const handleViewCV = async (cvId) => {
         if (!cvId) return;
 
@@ -68,7 +68,8 @@ export default function OfferApplications() {
                 <Link to="/tutor-dashboard" className="bg-gray-100 hover:bg-gray-200 text-gray-600 px-4 py-2 rounded-xl transition">
                     <i className="fa-solid fa-arrow-left"></i> Retour
                 </Link>
-                <h1 className="text-3xl font-black text-blue-900 tracking-tight">Dossiers de candidature</h1>
+                {/* Titre en Gris Anthracite */}
+                <h1 className="text-3xl font-black text-brand-900 tracking-tight">Dossiers de candidature</h1>
             </div>
 
             {error && (
@@ -96,7 +97,8 @@ export default function OfferApplications() {
 
                             <div className="flex-1">
                                 <h3 className="font-bold text-lg text-gray-800">
-                                    <i className="fa-solid fa-user-graduate text-blue-500 mr-2"></i>
+                                    {/* Icône en Gris Anthracite clair */}
+                                    <i className="fa-solid fa-user-graduate text-brand-600 mr-2"></i>
                                     {app.studentName || `Étudiant n°${app.studentId}`}
                                 </h3>
                                 <p className="text-sm text-gray-500 mt-1">
@@ -105,13 +107,15 @@ export default function OfferApplications() {
                             </div>
 
                             <div className="flex items-center gap-4">
+                                {/* Les badges de statut gardent leurs couleurs sémantiques (vert/rouge/orange) */}
                                 {app.status === 'EN_ATTENTE' && <span className="bg-orange-100 text-orange-700 px-3 py-1 rounded-lg text-xs font-bold">En attente</span>}
                                 {app.status === 'ACCEPTE' && <span className="bg-green-100 text-green-700 px-3 py-1 rounded-lg text-xs font-bold"><i className="fa-solid fa-check mr-1"></i> Accepté</span>}
                                 {app.status === 'REFUSE' && <span className="bg-red-100 text-red-700 px-3 py-1 rounded-lg text-xs font-bold">Refusé</span>}
 
                                 <button
                                     onClick={() => setSelectedApp(app)}
-                                    className="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-4 py-2 rounded-xl text-sm font-bold transition"
+                                    // Bouton d'action secondaire (brand)
+                                    className="bg-brand-50 hover:bg-brand-100 text-brand-900 border border-brand-200 px-4 py-2 rounded-xl text-sm font-bold transition"
                                 >
                                     <i className="fa-solid fa-magnifying-glass mr-2"></i> Examiner
                                 </button>
@@ -138,16 +142,17 @@ export default function OfferApplications() {
 
                         <div className="p-6 overflow-y-auto flex-1">
                             <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">Lettre de motivation</h3>
-                            <div className="bg-blue-50/50 p-6 rounded-2xl border border-blue-100 text-gray-700 whitespace-pre-wrap font-serif leading-relaxed">
+                            {/* Cadre de la lettre en Gris Anthracite ultra léger */}
+                            <div className="bg-brand-50/50 p-6 rounded-2xl border border-brand-100 text-gray-700 whitespace-pre-wrap font-serif leading-relaxed">
                                 {selectedApp.motivationLetter ? selectedApp.motivationLetter : <span className="italic text-gray-400">Cet étudiant n'a pas laissé de lettre de motivation.</span>}
                             </div>
 
-                            {/* Section CV mise à jour */}
                             <div className="mt-6 border-t border-dashed border-gray-200 pt-6">
                                 <h3 className="text-sm font-bold text-gray-400 uppercase tracking-wider mb-3">Pièces jointes</h3>
 
                                 {selectedApp.cvId ? (
-                                    <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-blue-100 shadow-sm">
+                                    // Cadre du CV
+                                    <div className="flex items-center justify-between p-4 bg-white rounded-xl border border-brand-100 shadow-sm">
                                         <div className="flex items-center gap-3">
                                             <i className="fa-solid fa-file-pdf text-red-500 text-2xl"></i>
                                             <div>
@@ -157,7 +162,8 @@ export default function OfferApplications() {
                                         </div>
                                         <button
                                             onClick={() => handleViewCV(selectedApp.cvId)}
-                                            className="bg-blue-50 hover:bg-blue-100 text-blue-700 border border-blue-200 px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2"
+                                            // Bouton d'action secondaire (brand)
+                                            className="bg-brand-50 hover:bg-brand-100 text-brand-900 border border-brand-200 px-4 py-2 rounded-xl text-sm font-bold transition flex items-center gap-2"
                                         >
                                             <i className="fa-solid fa-eye"></i> Consulter le CV
                                         </button>
