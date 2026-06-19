@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import logo from '../assets/logo_test_nbg.png';
 
 export default function Header({ user, onLogout }) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -22,11 +23,10 @@ export default function Header({ user, onLogout }) {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <div className="flex justify-between items-center h-20 gap-4">
 
-                    {/* Logo */}
-                    <Link to="/" className="shrink-0 flex items-center gap-2 cursor-pointer">
-                        <div className="w-10 h-10 bg-brand-900 rounded-lg flex items-center justify-center text-white text-xl font-bold shadow-lg">
-                            <i className="fa-solid fa-graduation-cap"></i>
-                        </div>
+                    {/* Logo - Zone mise à jour avec une taille plus grande */}
+                    <Link to="/" className="shrink-0 flex items-center gap-3 cursor-pointer">
+                        {/* Augmentation de w-10 h-10 à w-14 h-14 */}
+                        <img src={logo} alt="Logo OptiStage" className="w-14 h-14 object-contain drop-shadow-sm" />
                         <span className="font-bold text-2xl tracking-tight text-brand-900 hidden sm:block">OptiStage</span>
                     </Link>
 

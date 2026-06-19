@@ -13,6 +13,8 @@ import StudentDashboard from "./pages/StudentDashboard.jsx";
 import TeacherDashboard from "./pages/TeacherDashboard.jsx";
 import Validate from './pages/Validate';
 import OfferApplications from "./pages/OfferApplications.jsx";
+import CGU from "./pages/CGU.jsx";
+import MentionsLegales from "./pages/MentionsLegales.jsx";
 
 function App() {
     const [user, setUser] = useState(null);
@@ -56,6 +58,8 @@ function App() {
                         <Route path="/tutor/offer/:id/applications" element={<OfferApplications />} />
                         <Route path="/profile" element={<Profile user={user} onUpdateUser={setUser} />} />
                         <Route path="/validate" element={<Validate />} />
+                        <Route path={"/cgu"} element={<CGU />} />
+                        <Route path={"/mentions-legales"} element={<MentionsLegales />} />
 
                     </Routes>
                 </main>

@@ -2,30 +2,29 @@ const API_BASE_URL = "http://localhost:9991/ws/rest";
 
 
 export const apiService = {
-    // Fonction utilitaire de Jarvis pour convertir un fichier en Base64
+    // Fonction utilitaire pour convertir un fichier en Base64
     // (À placer en dehors de l'objet apiService, juste au-dessus)
     toBase64: (file) => new Promise((resolve, reject) => {
         const reader = new FileReader();
         reader.readAsDataURL(file);
         reader.onload = () => {
-            // On retire l'en-tête "data:application/pdf;base64," pour ne garder que le contenu brut
             const base64String = reader.result.split(',')[1];
             resolve(base64String);
         };
         reader.onerror = error => reject(error);
     }),
 
-    login: async (email, password) => {
+    login: async (email, password, captchaToken) => {
         const response = await fetch(`${API_BASE_URL}/users/login`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            // CRUCIAL : Autorise le transport des cookies (reception et envoi)
             credentials: 'include',
             body: JSON.stringify({
                 email: email,
-                password: password
+                password: password,
+                captchaToken: captchaToken // <-- La sécurité du token est ajoutée ici
             })
         });
 

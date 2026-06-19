@@ -1,21 +1,32 @@
 import { useState } from 'react';
 import { apiService } from '../services/api';
 import { useNavigate, Link } from 'react-router-dom';
+import { Turnstile } from '@marsidev/react-turnstile';
 
 export default function Login({ onLoginSuccess }) {
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
     const [isLoading, setIsLoading] = useState(false);
+    // On ajoute notre conteneur pour le jeton de sécurité
+    const [captchaToken, setCaptchaToken] = useState(null);
     const navigate = useNavigate();
 
     const handleLogin = async (e) => {
         e.preventDefault();
         setError("");
+
+        // On bloque toute tentative si le bouclier n'a pas validé l'utilisateur
+        if (!captchaToken) {
+            setError("L'analyse de sécurité n'est pas terminée.");
+            return;
+        }
+
         setIsLoading(true);
 
         try {
-            const userData = await apiService.login(email, password);
+            // On glisse discrètement le jeton dans la requête
+            const userData = await apiService.login(email, password, captchaToken);
 
             if (userData.isActive === false) {
                 setError("Accès suspendu : Votre compte est en attente de validation.");
@@ -24,7 +35,6 @@ export default function Login({ onLoginSuccess }) {
             }
 
             // --- PROTOCOLE DE PERSISTANCE ---
-            // On stocke l'objet utilisateur dans le navigateur pour ne pas le perdre au rafraîchissement
             sessionStorage.setItem('user', JSON.stringify(userData));
 
             if (onLoginSuccess) {
@@ -32,7 +42,6 @@ export default function Login({ onLoginSuccess }) {
             }
 
             // --- REDIRECTION INTELLIGENTE SELON LE RÔLE ---
-            // On vérifie le rôle retourné par votre UserDto (Java)
             switch(userData.role) {
                 case 'Étudiant':
                     navigate('/offers');
@@ -55,11 +64,9 @@ export default function Login({ onLoginSuccess }) {
     };
 
     return (
-        // Remplacement de slate-50 par brand-100 pour la cohérence du fond
         <div className="min-h-screen bg-brand-100 flex items-center justify-center p-4">
             <div className="bg-white/90 backdrop-blur-md p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white/10">
                 <div className="text-center mb-8">
-                    {/* Le titre passe en Gris Anthracite (brand-900) */}
                     <h2 className="text-3xl font-bold text-brand-900">OptiStage</h2>
                     <p className="text-gray-500 mt-2 text-sm">Authentification requise</p>
                 </div>
@@ -76,7 +83,6 @@ export default function Login({ onLoginSuccess }) {
                         placeholder="Adresse email"
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
-                        // Focus ring passe en accent (Émeraude)
                         className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent-500 outline-none transition text-brand-900"
                         required
                     />
@@ -86,16 +92,25 @@ export default function Login({ onLoginSuccess }) {
                         placeholder="Mot de passe"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        // Focus ring passe en accent (Émeraude)
                         className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 focus:ring-accent-500 outline-none transition text-brand-900"
                         required
                     />
 
+                    {/* Déploiement du radar Turnstile */}
+                    <div className="flex justify-center my-4">
+                        <Turnstile
+                            siteKey="0x4AAAAAADhc_YcW1B3blj0W"
+                            onSuccess={(token) => setCaptchaToken(token)}
+                            onError={() => setError("Échec de la validation de sécurité réseau.")}
+                            onExpire={() => setCaptchaToken(null)}
+                        />
+                    </div>
+
                     <button
                         type="submit"
-                        disabled={isLoading}
-                        // Bouton principal en accent (Émeraude)
-                        className={`w-full text-white font-bold py-3.5 rounded-xl shadow-lg transition-all mt-4 ${isLoading ? 'bg-accent-400 cursor-not-allowed' : 'bg-accent-500 hover:bg-accent-600 active:scale-95'}`}
+                        // Le bouton reste grisé tant que le widget n'a pas renvoyé le feu vert
+                        disabled={isLoading || !captchaToken}
+                        className={`w-full text-white font-bold py-3.5 rounded-xl shadow-lg transition-all mt-4 ${isLoading || !captchaToken ? 'bg-accent-400 cursor-not-allowed' : 'bg-accent-500 hover:bg-accent-600 active:scale-95'}`}
                     >
                         {isLoading ? "Vérification..." : "Se connecter"}
                     </button>
